@@ -2,6 +2,18 @@
   @import url('https://fonts.googleapis.com/css2?family=League+Gothic&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+
+
+  * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Hace que el padding no estire el tamaño real de tus cajas */
+}
+
+body {
+  background-color: black;
+}
+
 .parent{
   display: grid;
   grid-template-areas: "head head"
@@ -10,7 +22,7 @@
                        "foot foot";
 
   grid-template-rows: 120px 700px 1fr 100px;
-  grid-template-columns: minmax(250px, 400px) minmax(400px, auto);
+  grid-template-columns: minmax(150px, 300px) minmax(400px, auto);
   height:fit-content;
   color: rgb(183, 183, 183);
   font-family: "Roboto Mono";
@@ -22,90 +34,121 @@ header {
   display: flex;
   align-items: center;
   background: rgb(43, 43, 43);
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   font-family: "League Gothic", sans-serif;
   font-size: 6rem;
   padding-left: 5%;
   text-align: left;
-  z-index: 10;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.header-icon {
+  height: 4.5rem;
+  object-fit: contain;
 }
 
 .hero {
   grid-area: hero;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: "Kanit", sans-serif;
-  font-weight: 200;
-  font-size: 65px;
-  background-color: black;
-  background-image: linear-gradient(to left, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0.8) 100%),
-                    linear-gradient(to right, rgba(0, 0, 0, 0) 30%, rgb(0, 0, 0) 90%),
-                    linear-gradient(to top, rgba(0, 0, 0, 0) 89%, rgb(0, 0, 0) 100%),
-                    linear-gradient(to bottom, rgba(0, 0, 0, 0) 80%, rgb(0, 0, 0) 100%),
-                    url('../assets/images/hero.jpg');
-  background-size: 700px;
-  background-position: left;
-  background-repeat: no-repeat;
+  background-color: rgb(0, 0, 0);
+  overflow: hidden;
+}
+
+.hero-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  filter: grayscale(60%);
+}
+
+.hero-image-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 80%),
+              linear-gradient(to bottom, rgba(0, 0, 0, 0) 90%, rgb(0, 0, 0) 100%);
 }
 
 .info-hero {
+  position: relative;
   margin-right: auto;
-  padding-left: 25%;
-  max-width: 700px;
-  text-align: left;
-  z-index: 10;
+  padding-left: 30%;
+  font-family: "Kanit", sans-serif;
+  font-weight: 100;
+  font-size: 65px;
+  line-height: 1;
 }
 
-.info-hero p{
-  margin-top: 0;
-  margin-bottom: 1px;
-}
-
-.imagen-hero img{
-  height: 700px;
-  object-fit: cover;
+.info-hero p {
+  margin: 0 0 5px 0;
 }
 
 aside {
   grid-area: menu;
   background: rgb(0, 0, 0);
 }
+.titulo-seccion {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 
-footer {
-  grid-area: foot;
-  background: #333;
+}
+.section-icon {
+  height: 2rem;
+  object-fit: contain;
+}
+h1{
+  font-size: 3rem;
+  margin: 0;
 }
 
-/* GRID GLOBAL (El padre) */
 .seccion-principal {
-  grid-area: body; /* Se coloca en el espacio 'body' del layout principal */
-  /* Opcional: Le damos un poco de orden interno a la sección */
+  display: grid;
+  grid-area: body;
   background: rgb(0, 0, 0);
   display: grid;
   gap: 20px;
   padding: 20px;
+  margin-top: 6rem;
 }
 
-/* GRID INTERNO (Para las carátulas) */
 .mis-libros {
   display: grid;
-  /* Creamos columnas automáticas que se adaptan al tamaño de la pantalla */
-  /* minmax(150px, 1fr) significa: que midan mínimo 150px y máximo lo que sobre */
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   justify-content: center;
-  /* Espacio de separación entre las carátulas */
   gap: 20px;
 }
 
-/* Estilos básicos para que las imágenes de las carátulas no se rompan */
 .caratula img {
   width: 100%;
   height: 100%;
   object-fit: cover; /* Hace que la imagen se adapte al contenedor sin deformarse */
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+footer {
+  grid-area: foot;
+  background: #333;
 }
 
 
