@@ -149,20 +149,20 @@ h1{
   gap: 12px;
 }
 
-.caratula {
+.libros {
   overflow: hidden;
   border-radius: 8px;
   cursor: pointer;
   position: relative;
 }
 
-.imagen-contenedor {
+.ficha-libro {
   position: relative;
   overflow: hidden;
   aspect-ratio: 2 / 3;
 }
 
-.imagen-contenedor::after {
+.ficha-libro::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -172,11 +172,11 @@ h1{
   z-index: 1;
 }
 
-.caratula:hover .imagen-contenedor::after {
+.libros:hover .ficha-libro::after {
   background: linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0.849) 50%, rgba(0, 0, 0, 0) 100%);
 }
 
-.imagen-contenedor img {
+.ficha-libro img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -218,7 +218,7 @@ h1{
   z-index: 3;
 }
 
-.caratula:hover .extra-info {
+.libros:hover .extra-info {
   opacity: 1;
   transform: translateY(0);
 }
