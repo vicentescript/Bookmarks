@@ -51,7 +51,7 @@ const libros = [
     genero: "Thriller",
     paginas: 336,
     rating: 4.3,
-    imagen: "assets/images/la-asistenta-3449739027.jpg"
+    imagen: "assets/images/asistenta.jpg"
   },
   {
     titulo: "Dune",

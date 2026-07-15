@@ -17,6 +17,7 @@
     infoLibro.className = 'info-libro';
 
     const titulo = document.createElement('h3');
+    titulo.className = 'titulo';
     titulo.textContent = libro.titulo;
 
     const autor = document.createElement('p');
@@ -32,7 +33,6 @@
     const sinopsis = document.createElement('p');
     sinopsis.className = 'sinopsis';
     sinopsis.textContent = libro.sinopsis;
-    extraInfo.appendChild(sinopsis);
 
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -52,7 +52,9 @@
     rating.textContent = '★ ' + libro.rating;
     meta.appendChild(rating);
 
+    extraInfo.appendChild(sinopsis);
     extraInfo.appendChild(meta);
+
     imgContainer.appendChild(infoLibro);
     imgContainer.appendChild(extraInfo);
     article.appendChild(imgContainer);
