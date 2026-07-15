@@ -6,7 +6,7 @@ A visual library manager to keep track of your books and reading progress.
 
 ## 🚀 Demo
 
-Visita [vicentescript/Bookmarks](https://github.com/vicentescript/Bookmarks)
+Visita [vicentescript.github.io/Bookmarks](https://vicentescript.github.io/Bookmarks)
 
 ## 📖 Descripción
 
