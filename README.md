@@ -10,7 +10,7 @@ Visita [vicentescript.github.io/Bookmarks](https://vicentescript.github.io/Bookm
 
 ## 📖 Descripción
 
-BOOKMARKS es una aplicación web de catálogo visual diseñada para gestionar tu biblioteca personal. Su interfaz combina una estética oscura y tipografía cuidada con los siguientes elementos clave:
+BOOKMARKS es una aplicación web en desarrollo de catálogo visual diseñada para gestionar tu biblioteca personal. Su interfaz combina una estética oscura y tipografía cuidada con los siguientes elementos clave:
 
 - **Hero asimétrico**: Una sección de bienvenida dividida en dos mitades —imagen con filtro de escala de grises y gradiente degradado a la izquierda, texto estilizado a la derecha— que crea un impacto visual moderno y equilibrado.
 - **Galería con CSS Grid**: Los libros se despliegan en una rejilla responsive (`auto-fill` + `minmax`) que se adapta automáticamente al ancho de la pantalla, desde móviles hasta monitores anchos.
