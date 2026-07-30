@@ -23,16 +23,3 @@ App web para gestionar tu biblioteca personal, seguir tu progreso de lectura y d
 ## Tecnologías
 
 HTML, CSS, JS vanilla, Vite, Google Books API.
-
-## Uso
-
-```bash
-npm install
-npm run dev
-```
-
-Crea un `.env` en la raíz con:
-
-```
-VITE_GOOGLE_BOOKS_KEY=tu_clave
-```
