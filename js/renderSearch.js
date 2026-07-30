@@ -105,8 +105,6 @@ export function search() {
     floatingBar.style.width = headerRect.width + 'px';
     floatingBar.style.height = headerRect.height + 'px';
 
-    headerSearch.style.visibility = '';
-
     overlay.style.opacity = '0';
 
     setTimeout(() => {
@@ -115,6 +113,7 @@ export function search() {
       floatingBar = null;
       overlay = null;
       closing = false;
+      headerSearch.style.visibility = '';
       document.body.style.overflow = '';
     }, 400);
   }
@@ -211,31 +210,49 @@ export function search() {
         cloneInput.disabled = true;
         resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#555;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">Buscando...</p>';
 
-        try {
+        let intentos = 0;
+        const maxIntentos = 10;
+
+        const intentar = async () => {
+          intentos++;
           const data = await searchBooks(cloneInput.value);
-          const items = data.items || [];
-          const libros = items.map(transformBook);
-          resultsGrid.innerHTML = '';
-
-          const user = getCurrentUser();
-          if (!user) { cloneInput.disabled = false; return; }
-
-          if (libros.length === 0) {
-            resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#555;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">Sin resultados. Prueba otra búsqueda.</p>';
-            cloneInput.disabled = false;
-            return;
+          if (data) return data;
+          if (intentos < maxIntentos) {
+            await new Promise(r => setTimeout(r, Math.min(1000 * intentos, 6000)));
+            return intentar();
           }
+          return null;
+        };
 
-          const mostrar = libros.slice(0, 7);
-          mostrar.forEach(libro => {
-            resultsGrid.appendChild(createBookCard(libro, user));
-          });
+        const data = await intentar();
+        resultsGrid.innerHTML = '';
 
-          if (libros.length > 7) {
-            resultsGrid.appendChild(createShowMoreBtn(libros, user, resultsGrid));
-          }
-        } catch (err) {
-          resultsGrid.innerHTML = `<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#e57373;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">${err.message}</p>`;
+        if (!data) {
+          resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#e57373;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">No se pudo conectar con Google Books. Intenta más tarde.</p>';
+          cloneInput.disabled = false;
+          cloneInput.focus();
+          return;
+        }
+
+        const items = data.items || [];
+        const libros = items.map(transformBook);
+
+        const user = getCurrentUser();
+        if (!user) { cloneInput.disabled = false; return; }
+
+        if (libros.length === 0) {
+          resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#555;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">Sin resultados. Prueba otra búsqueda.</p>';
+          cloneInput.disabled = false;
+          return;
+        }
+
+        const mostrar = libros.slice(0, 7);
+        mostrar.forEach(libro => {
+          resultsGrid.appendChild(createBookCard(libro, user));
+        });
+
+        if (libros.length > 7) {
+          resultsGrid.appendChild(createShowMoreBtn(libros, user, resultsGrid));
         }
 
         cloneInput.disabled = false;

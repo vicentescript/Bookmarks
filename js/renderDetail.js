@@ -4,11 +4,11 @@ import { renderCurrentlyReading } from './renderReading.js';
 
 const ESTADOS = ['pendiente', 'leyendo', 'leido', 'abandonado', 'pausado'];
 const ESTADOS_LABEL = {
-  pendiente: '📚 Pendiente',
-  leyendo: '📖 Leyendo',
-  leido: '✅ Leído',
-  abandonado: '❌ Abandonado',
-  pausado: '⏸️ Pausado',
+  pendiente: 'Pendiente',
+  leyendo: 'Leyendo',
+  leido: 'Leído',
+  abandonado: 'Abandonado',
+  pausado: 'Pausado',
 };
 
 function enterEditMode(container, libro, refreshFn) {
@@ -109,13 +109,13 @@ export function openDetail(libro) {
     const pag = document.createElement('span');
     pag.className = 'detail-editable';
     pag.dataset.field = 'paginas';
-    pag.textContent = '📄 ' + (libro.paginas || '?') + ' pág.';
+    pag.textContent = (libro.paginas || '?') + ' pág.';
     metas.appendChild(pag);
 
     const gen = document.createElement('span');
     gen.className = 'detail-editable';
     gen.dataset.field = 'genero';
-    gen.textContent = '📖 ' + (libro.genero || 'General');
+    gen.textContent = libro.genero || 'General';
     metas.appendChild(gen);
 
     infoCol.appendChild(metas);

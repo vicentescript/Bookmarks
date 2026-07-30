@@ -12,6 +12,7 @@ const ESTADOS = {
 const ESTADOS_ORDER = ['pendiente', 'leyendo', 'leido', 'abandonado', 'pausado'];
 
 let filtroActual = null;
+let searchTerm = '';
 
 function renderEstrellas(libro) {
   const container = document.createElement('div');
@@ -48,6 +49,19 @@ function renderCard(libro) {
   img.loading = 'lazy';
   imgContainer.appendChild(img);
 
+  const delOverlay = document.createElement('button');
+  delOverlay.className = 'delete-overlay';
+  delOverlay.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  delOverlay.title = 'Eliminar de mi biblioteca';
+  delOverlay.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (confirm('¿Eliminar "' + libro.titulo + '" de tu biblioteca?')) {
+      removeUserBook(libro.id);
+      renderBiblioteca();
+    }
+  });
+  imgContainer.appendChild(delOverlay);
+
   const badge = renderBadge(libro.estado);
   badge.className = 'badge-estado-top';
   imgContainer.appendChild(badge);
@@ -66,27 +80,14 @@ function renderCard(libro) {
   infoLibro.appendChild(titulo);
   infoLibro.appendChild(autor);
 
-  const extraInfo = document.createElement('div');
-  extraInfo.className = 'extra-info';
-
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-
-  const paginasSpan = document.createElement('span');
-  paginasSpan.className = 'paginas';
-  paginasSpan.textContent = (libro.paginas || '?') + ' pág.';
-
-  meta.appendChild(paginasSpan);
-
-  const genero = document.createElement('span');
-  genero.className = 'genero';
-  genero.textContent = libro.genero || 'General';
-  meta.appendChild(genero);
-
-  extraInfo.appendChild(meta);
-
   imgContainer.appendChild(infoLibro);
-  imgContainer.appendChild(extraInfo);
+
+  const synopsisPanel = document.createElement('div');
+  synopsisPanel.className = 'synopsis-panel';
+  const synopsisContent = document.createElement('div');
+  synopsisContent.className = 'synopsis-content';
+  synopsisContent.textContent = libro.sinopsis;
+  synopsisPanel.appendChild(synopsisContent);
 
   const footer = document.createElement('div');
   footer.className = 'card-footer';
@@ -109,22 +110,23 @@ function renderCard(libro) {
   });
   footer.appendChild(estadoSelect);
 
-  const deleteBtn = document.createElement('button');
-  deleteBtn.className = 'delete-btn';
-  deleteBtn.textContent = '✕';
-  deleteBtn.title = 'Eliminar de mi biblioteca';
-  deleteBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    removeUserBook(libro.id);
-    renderBiblioteca();
-  });
-  footer.appendChild(deleteBtn);
-
   article.appendChild(imgContainer);
   article.appendChild(footer);
+  article.appendChild(synopsisPanel);
+
+  article.addEventListener('mouseenter', () => {
+    const grid = article.closest('.mis-libros');
+    if (!grid) return;
+    const gridRect = grid.getBoundingClientRect();
+    const cardRect = article.getBoundingClientRect();
+    article.classList.toggle('flip', cardRect.right + 260 > gridRect.right);
+  });
+  article.addEventListener('mouseleave', () => {
+    article.classList.remove('flip');
+  });
 
   article.addEventListener('click', (e) => {
-    if (e.target.closest('.card-footer') || e.target.closest('.extra-info') || e.target.closest('.badge-estado-top')) return;
+    if (e.target.closest('.card-footer') || e.target.closest('.badge-estado-top') || e.target.closest('.synopsis-panel')) return;
     import('./renderDetail.js').then(mod => mod.openDetail(libro));
   });
 
@@ -169,13 +171,22 @@ export function renderBiblioteca() {
     if (filtroActual) {
       libros = libros.filter(b => b.estado === filtroActual);
     }
+    searchTerm = document.getElementById('librarySearch').value.toLowerCase().trim();
+    if (searchTerm) {
+      libros = libros.filter(b =>
+        b.titulo.toLowerCase().includes(searchTerm) ||
+        b.autor.toLowerCase().includes(searchTerm)
+      );
+    }
 
     if (libros.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'empty-msg';
-      empty.textContent = filtroActual
-        ? 'No hay libros en esta categoría.'
-        : 'Tu biblioteca está vacía. Busca libros y añádelos desde la búsqueda.';
+      empty.textContent = searchTerm
+        ? 'No hay libros que coincidan con "' + searchTerm + '".'
+        : filtroActual
+          ? 'No hay libros en esta categoría.'
+          : 'Tu biblioteca está vacía. Busca libros y añádelos desde la búsqueda.';
       contenedor.appendChild(empty);
       return;
     }
@@ -198,5 +209,9 @@ export function renderBiblioteca() {
 export function initBiblioteca() {
   initFiltros();
   renderBiblioteca();
+  const searchInput = document.getElementById('librarySearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => renderBiblioteca());
+  }
 }
 
