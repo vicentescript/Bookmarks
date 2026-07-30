@@ -29,14 +29,58 @@ body {
 
 header {
   grid-area: head;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   background: rgb(43, 43, 43);
   font-family: "League Gothic", sans-serif;
   font-size: 5rem;
   padding: 0 5%;
   text-align: left;
+  position: relative;
+}
+
+.header-search {
+  justify-self: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 10px 56px 10px 16px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #222;
+  color: #fff;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-wrapper input:focus {
+  border-color: #ffbd59;
+}
+
+.search-wrapper input::placeholder {
+  color: #666;
+}
+
+.search-shortcut {
+  position: absolute;
+  right: 10px;
+  color: #555;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.65rem;
+  pointer-events: none;
+  user-select: none;
 }
 
 .logo-container {
@@ -189,30 +233,29 @@ header {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
-.filtro-btn {
-  padding: 8px 16px;
+.filtro-pill {
+  padding: 8px 18px;
   border: 1px solid #333;
-  border-radius: 20px;
+  border-radius: 8px;
   background: transparent;
-  color: #999;
+  color: #888;
   font-family: "Roboto Mono", monospace;
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.filtro-btn:hover {
-  border-color: #ffbd59;
-  color: #fff;
+.filtro-pill:hover {
+  border-color: #777;
+  color: #ccc;
 }
 
-.filtro-btn.activo {
-  background: #ffbd59;
+.filtro-pill.active {
   border-color: #ffbd59;
-  color: #000;
-  font-weight: 600;
+  color: #ffbd59;
 }
 
 .mis-libros {
@@ -226,6 +269,22 @@ header {
   border-radius: 8px;
   cursor: pointer;
   position: relative;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.libros.exit {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  pointer-events: none;
+}
+
+.libros.enter {
+  animation: cardEnter 0.3s ease both;
+}
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .ficha-libro {
@@ -300,16 +359,6 @@ header {
   gap: 15px;
   font-size: 0.8rem;
   color: #ccc;
-}
-
-.extra-info .paginas.editable {
-  cursor: pointer;
-  pointer-events: auto;
-  border-bottom: 1px dashed #555;
-}
-
-.extra-info .paginas.editable:hover {
-  border-bottom-color: #ffbd59;
 }
 
 .extra-info .genero::before {
@@ -415,13 +464,14 @@ header {
   position: relative;
   display: flex;
   align-items: center;
+  justify-self: end;
 }
 
 .user-avatar {
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background: #000;
+  background: #222;
   border: 1px solid #333;
   color: #fff;
   font-size: 1.6rem;
@@ -724,24 +774,6 @@ header {
   background: #e57373;
   color: #000;
   border-color: #e57373;
-}
-
-.pages-input {
-  width: 60px;
-  padding: 2px 4px;
-  border: 1px solid #ffbd59;
-  border-radius: 4px;
-  background: #111;
-  color: #fff;
-  font-family: "Roboto Mono", monospace;
-  font-size: 0.7rem;
-  outline: none;
-  -moz-appearance: textfield;
-}
-
-.pages-input::-webkit-inner-spin-button,
-.pages-input::-webkit-outer-spin-button {
-  display: none;
 }
 
 .empty-msg {
@@ -1180,6 +1212,53 @@ header {
   outline: none;
   cursor: pointer;
   flex: 1;
+}
+
+.detail-edit-btn,
+.detail-edit-save,
+.detail-edit-cancel {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #ffbd59;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.detail-edit-btn:hover,
+.detail-edit-save:hover,
+.detail-edit-cancel:hover {
+  background: rgba(255, 189, 89, 0.1);
+}
+
+.detail-edit-cancel {
+  color: #999;
+}
+
+.detail-edit-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #111;
+  color: #eee;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.85rem;
+  outline: none;
+  margin-top: 4px;
+}
+
+.detail-edit-input:focus {
+  border-color: #ffbd59;
+}
+
+.detail-edit-textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
 .detail-rating {

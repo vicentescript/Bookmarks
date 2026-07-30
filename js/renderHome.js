@@ -1,4 +1,4 @@
-import { getCurrentUser, getUserBooks, updateBookStatus, updateBookRating, updateBookPages, removeUserBook } from './store.js';
+import { getCurrentUser, getUserBooks, updateBookStatus, updateBookRating, removeUserBook } from './store.js';
 
 const ESTADOS = {
   pendiente: { label: 'Pendiente', color: '#ffbd59' },
@@ -6,6 +6,7 @@ const ESTADOS = {
   leido:      { label: 'Leído',      color: '#81c784' },
   abandonado: { label: 'Abandonado', color: '#e57373' },
   pausado:    { label: 'Pausado',    color: '#ba68c8' },
+  todos:      { label: 'Todos',      color: '#ffbd59' },
 };
 
 const ESTADOS_ORDER = ['pendiente', 'leyendo', 'leido', 'abandonado', 'pausado'];
@@ -72,38 +73,8 @@ function renderCard(libro) {
   meta.className = 'meta';
 
   const paginasSpan = document.createElement('span');
-  paginasSpan.className = 'paginas editable';
+  paginasSpan.className = 'paginas';
   paginasSpan.textContent = (libro.paginas || '?') + ' pág.';
-  paginasSpan.title = 'Haz clic para editar';
-
-  paginasSpan.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.min = 1;
-    input.className = 'pages-input';
-    input.value = libro.paginas || '';
-    input.placeholder = '¿?';
-
-    paginasSpan.replaceWith(input);
-    input.focus();
-
-    const save = () => {
-      const val = parseInt(input.value);
-      if (val && val > 0) {
-        updateBookPages(libro.id, val);
-        renderBiblioteca();
-      } else {
-        renderBiblioteca();
-      }
-    };
-
-    input.addEventListener('blur', save);
-    input.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
-      if (ev.key === 'Escape') { renderBiblioteca(); }
-    });
-  });
 
   meta.appendChild(paginasSpan);
 
@@ -164,21 +135,14 @@ function initFiltros() {
   const container = document.getElementById('filtrosEstados');
   container.innerHTML = '';
 
-  const todos = document.createElement('button');
-  todos.className = 'filtro-btn' + (filtroActual === null ? ' activo' : '');
-  todos.textContent = '📚 Todos';
-  todos.addEventListener('click', () => {
-    filtroActual = null;
-    renderBiblioteca();
-  });
-  container.appendChild(todos);
-
-  ESTADOS_ORDER.forEach(est => {
+  const allEstados = ['todos', ...ESTADOS_ORDER];
+  allEstados.forEach(est => {
+    const isActive = (est === 'todos' && filtroActual === null) || filtroActual === est;
     const btn = document.createElement('button');
-    btn.className = 'filtro-btn' + (filtroActual === est ? ' activo' : '');
-    btn.textContent = ESTADOS[est].icon + ' ' + ESTADOS[est].label;
+    btn.className = 'filtro-pill' + (isActive ? ' active' : '');
+    btn.textContent = ESTADOS[est]?.label || est;
     btn.addEventListener('click', () => {
-      filtroActual = est;
+      filtroActual = est === 'todos' ? null : est;
       renderBiblioteca();
     });
     container.appendChild(btn);
@@ -186,40 +150,52 @@ function initFiltros() {
 }
 
 export function renderBiblioteca() {
+  initFiltros();
   const user = getCurrentUser();
   if (!user) return;
 
   const contenedor = document.querySelector('.mis-libros');
-  contenedor.innerHTML = '';
 
-  let libros = getUserBooks(user.id);
-  if (filtroActual) {
-    libros = libros.filter(b => b.estado === filtroActual);
+  const animar = contenedor.querySelector('.libros') != null;
+
+  if (animar) {
+    contenedor.querySelectorAll('.libros').forEach(el => el.classList.add('exit'));
   }
 
-  if (libros.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'empty-msg';
-    empty.textContent = filtroActual
-      ? 'No hay libros en esta categoría.'
-      : 'Tu biblioteca está vacía. Busca libros y añádelos desde la búsqueda.';
-    contenedor.appendChild(empty);
-    return;
-  }
+  const rebuild = () => {
+    contenedor.innerHTML = '';
 
-  libros.forEach(libro => {
-    contenedor.appendChild(renderCard(libro));
-  });
+    let libros = getUserBooks(user.id);
+    if (filtroActual) {
+      libros = libros.filter(b => b.estado === filtroActual);
+    }
+
+    if (libros.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-msg';
+      empty.textContent = filtroActual
+        ? 'No hay libros en esta categoría.'
+        : 'Tu biblioteca está vacía. Busca libros y añádelos desde la búsqueda.';
+      contenedor.appendChild(empty);
+      return;
+    }
+
+    libros.forEach((libro, i) => {
+      const card = renderCard(libro);
+      card.classList.add('enter');
+      card.style.animationDelay = (i * 40) + 'ms';
+      contenedor.appendChild(card);
+    });
+  };
+
+  if (animar) {
+    setTimeout(rebuild, 280);
+  } else {
+    rebuild();
+  }
 }
 
 export function initBiblioteca() {
-  // Add icons to ESTADOS after DOM is ready
-  ESTADOS.pendiente.icon = '📚';
-  ESTADOS.leyendo.icon = '📖';
-  ESTADOS.leido.icon = '✅';
-  ESTADOS.abandonado.icon = '❌';
-  ESTADOS.pausado.icon = '⏸️';
-
   initFiltros();
   renderBiblioteca();
 }

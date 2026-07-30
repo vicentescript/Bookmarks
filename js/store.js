@@ -62,6 +62,14 @@ export function updateBookPages(bookId, paginas) {
   localStorage.setItem(STORAGE_BOOKS, JSON.stringify(all));
 }
 
+export function updateBookInfo(bookId, data) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_BOOKS)) || [];
+  const book = all.find(b => b.id === bookId);
+  if (!book) return;
+  Object.assign(book, data);
+  localStorage.setItem(STORAGE_BOOKS, JSON.stringify(all));
+}
+
 export function removeUserBook(bookId) {
   const all = JSON.parse(localStorage.getItem(STORAGE_BOOKS)) || [];
   const filtered = all.filter(b => b.id !== bookId);
