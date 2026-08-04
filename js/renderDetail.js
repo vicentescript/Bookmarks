@@ -62,6 +62,8 @@ function enterEditMode(container, libro, refreshFn) {
     });
     updateBookInfo(libro.id, data);
     Object.assign(libro, data);
+    renderBiblioteca();
+    renderCurrentlyReading();
     refreshFn();
   };
 
