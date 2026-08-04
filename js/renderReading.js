@@ -106,7 +106,7 @@ export function renderCurrentlyReading() {
   img.loading = 'lazy';
   img.style.cursor = 'pointer';
   img.addEventListener('click', () => {
-    import('./renderDetail.js').then(mod => mod.openDetail(reading));
+    import('./renderDetail.js').then(mod => mod.openDetail(reading, img));
   });
 
   const info = document.createElement('div');

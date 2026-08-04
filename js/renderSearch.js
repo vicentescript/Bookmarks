@@ -6,7 +6,7 @@ function upgradeImageUrl(url) {
   if (!url) return url;
   let u = url.replace(/^http:\/\//, 'https://');
   u = u.replace(/zoom=\d+/, 'zoom=2');
-  u = u.replace(/edge=curl/, 'edge=None');
+  u = u.replace(/edge=curl/, 'edge=none');
   return u;
 }
 

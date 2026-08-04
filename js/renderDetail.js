@@ -70,19 +70,30 @@ function enterEditMode(container, libro, refreshFn) {
   cancelBtn.onclick = refreshFn;
 }
 
-export function openDetail(libro) {
+export function openDetail(libro, sourceEl) {
   const overlay = document.createElement('div');
   overlay.className = 'login-overlay';
+  overlay.style.opacity = '0';
   document.body.appendChild(overlay);
 
   const modal = document.createElement('div');
   modal.className = 'detail-modal';
   overlay.appendChild(modal);
 
+  if (sourceEl) {
+    const srcRect = sourceEl.getBoundingClientRect();
+    modal.style.position = 'fixed';
+    modal.style.left = srcRect.left + 'px';
+    modal.style.top = srcRect.top + 'px';
+    modal.style.width = srcRect.width + 'px';
+    modal.style.height = srcRect.height + 'px';
+    modal.style.borderRadius = '8px';
+    modal.style.transition = 'none';
+  }
+
   const closeBtn = document.createElement('button');
   closeBtn.className = 'detail-close';
   closeBtn.textContent = '✕';
-  closeBtn.addEventListener('click', () => overlay.remove());
   modal.appendChild(closeBtn);
 
   function renderContent() {
@@ -258,7 +269,40 @@ export function openDetail(libro) {
 
   renderContent();
 
+  function closeModal() {
+    if (sourceEl) {
+      const srcRect = sourceEl.getBoundingClientRect();
+      modal.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+      modal.style.left = srcRect.left + 'px';
+      modal.style.top = srcRect.top + 'px';
+      modal.style.width = srcRect.width + 'px';
+      modal.style.height = srcRect.height + 'px';
+      modal.style.borderRadius = '8px';
+    }
+    overlay.style.transition = 'opacity 0.35s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 360);
+  }
+
+  if (sourceEl) {
+    void modal.offsetHeight;
+    modal.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    modal.style.left = '50%';
+    modal.style.top = '50%';
+    modal.style.width = '700px';
+    modal.style.maxWidth = '90vw';
+    modal.style.height = 'auto';
+    modal.style.maxHeight = '90vh';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.borderRadius = '16px';
+  }
+
+  overlay.style.transition = 'opacity 0.3s ease';
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay) closeModal();
   });
+
+  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
 }

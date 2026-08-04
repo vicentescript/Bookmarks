@@ -126,7 +126,7 @@ function renderCalendarContent(container) {
           cover.addEventListener('click', (e) => {
             e.stopPropagation();
             const fullBook = getUserBooks(user.id).find(b => b.id === s.book.id);
-            if (fullBook) import('./renderDetail.js').then(mod => mod.openDetail(fullBook));
+          if (fullBook) import('./renderDetail.js').then(mod => mod.openDetail(fullBook, cover));
           });
           popup.appendChild(cover);
         });

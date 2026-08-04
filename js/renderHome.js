@@ -129,7 +129,7 @@ function renderCard(libro) {
 
   article.addEventListener('click', (e) => {
     if (e.target.closest('.card-footer') || e.target.closest('.badge-estado-top') || e.target.closest('.synopsis-panel')) return;
-    import('./renderDetail.js').then(mod => mod.openDetail(libro));
+    import('./renderDetail.js').then(mod => mod.openDetail(libro, article));
   });
 
   return article;
