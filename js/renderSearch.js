@@ -2,13 +2,18 @@ import { searchBooks } from './api.js';
 import { getCurrentUser, addUserBook } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
 
+function upgradeImageUrl(url) {
+  return url ? url.replace(/&zoom=\d+/, '&zoom=3') : url;
+}
+
 function transformBook(item) {
   const info = item.volumeInfo || {};
+  const rawImg = info.imageLinks && (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail);
   return {
     bookId: item.id,
     titulo: info.title || 'Sin título',
     autor: (info.authors || ['Desconocido']).join(', '),
-    imagen: (info.imageLinks && (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail)) || 'assets/images/default.jpg',
+    imagen: upgradeImageUrl(rawImg) || 'assets/images/default.jpg',
     sinopsis: info.description || 'Sin descripción disponible',
     paginas: info.pageCount || null,
     genero: (info.categories || ['General'])[0],
