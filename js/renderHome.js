@@ -1,4 +1,5 @@
 import { getCurrentUser, getUserBooks, updateBookStatus, updateBookRating, removeUserBook } from './store.js';
+import { renderCurrentlyReading } from './renderReading.js';
 
 const ESTADOS = {
   pendiente: { label: 'Pendiente', color: '#ffbd59' },
@@ -107,6 +108,7 @@ function renderCard(libro) {
   estadoSelect.addEventListener('change', () => {
     updateBookStatus(libro.id, estadoSelect.value);
     renderBiblioteca();
+    renderCurrentlyReading();
   });
   footer.appendChild(estadoSelect);
 
