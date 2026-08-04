@@ -1310,6 +1310,15 @@ header {
   border-color: #ffbd59;
 }
 
+.imagen-preview {
+  width: 120px;
+  height: auto;
+  border-radius: 6px;
+  margin-top: 8px;
+  object-fit: cover;
+  display: block;
+}
+
 .detail-edit-textarea {
   min-height: 80px;
   resize: vertical;

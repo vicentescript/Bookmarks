@@ -8,7 +8,7 @@ function transformBook(item) {
     bookId: item.id,
     titulo: info.title || 'Sin título',
     autor: (info.authors || ['Desconocido']).join(', '),
-    imagen: (info.imageLinks && (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail)) || '',
+    imagen: (info.imageLinks && (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail)) || 'assets/images/default.jpg',
     sinopsis: info.description || 'Sin descripción disponible',
     paginas: info.pageCount || null,
     genero: (info.categories || ['General'])[0],
@@ -211,24 +211,24 @@ export function search() {
         resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#555;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">Buscando...</p>';
 
         let intentos = 0;
-        const maxIntentos = 10;
 
-        const intentar = async () => {
+        const intentar = async (startTime) => {
           intentos++;
           const data = await searchBooks(cloneInput.value);
           if (data) return data;
-          if (intentos < maxIntentos) {
+          const elapsed = Date.now() - startTime;
+          if (elapsed < 10000) {
             await new Promise(r => setTimeout(r, Math.min(1000 * intentos, 6000)));
-            return intentar();
+            return intentar(startTime);
           }
           return null;
         };
 
-        const data = await intentar();
+        const data = await intentar(Date.now());
         resultsGrid.innerHTML = '';
 
         if (!data) {
-          resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#e57373;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">No se pudo conectar con Google Books. Intenta más tarde.</p>';
+          resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#e57373;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">No se encontraron resultados. Intenta con otra búsqueda.</p>';
           cloneInput.disabled = false;
           cloneInput.focus();
           return;

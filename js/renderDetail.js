@@ -20,12 +20,30 @@ function enterEditMode(container, libro, refreshFn) {
   inputs.forEach(el => {
     const field = el.dataset.field;
     const current = libro[field] ?? '';
-    const isLong = field === 'sinopsis';
-    const input = isLong
-      ? Object.assign(document.createElement('textarea'), { className: 'detail-edit-input detail-edit-textarea', value: current })
-      : Object.assign(document.createElement('input'), { className: 'detail-edit-input', value: current, type: 'text' });
-    el.style.display = 'none';
-    el.parentNode.insertBefore(input, el.nextSibling);
+
+    if (field === 'imagen') {
+      const input = Object.assign(document.createElement('input'), {
+        className: 'detail-edit-input',
+        value: current,
+        type: 'text',
+        placeholder: 'URL de la portada...',
+      });
+      const preview = document.createElement('img');
+      preview.className = 'imagen-preview';
+      preview.src = current;
+      preview.alt = 'Preview';
+      el.style.display = 'none';
+      el.parentNode.insertBefore(input, el.nextSibling);
+      input.parentNode.insertBefore(preview, input.nextSibling);
+      input.addEventListener('input', () => { preview.src = input.value; });
+    } else {
+      const isLong = field === 'sinopsis';
+      const input = isLong
+        ? Object.assign(document.createElement('textarea'), { className: 'detail-edit-input detail-edit-textarea', value: current })
+        : Object.assign(document.createElement('input'), { className: 'detail-edit-input', value: current, type: 'text' });
+      el.style.display = 'none';
+      el.parentNode.insertBefore(input, el.nextSibling);
+    }
   });
 
   editBtn.style.display = 'none';
@@ -38,6 +56,7 @@ function enterEditMode(container, libro, refreshFn) {
       const field = inp.previousElementSibling.dataset.field;
       const val = inp.value.trim();
       if (field === 'paginas') data[field] = val ? parseInt(val) : null;
+      else if (field === 'imagen') data[field] = val || libro.imagen;
       else if (field === 'sinopsis') data[field] = val || 'Sin descripción disponible';
       else data[field] = val || 'Desconocido';
     });
@@ -76,6 +95,8 @@ export function openDetail(libro) {
     const img = document.createElement('img');
     img.src = libro.imagen;
     img.alt = libro.titulo;
+    img.className = 'detail-editable';
+    img.dataset.field = 'imagen';
     coverCol.appendChild(img);
 
     body.appendChild(coverCol);
