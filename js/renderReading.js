@@ -104,6 +104,10 @@ export function renderCurrentlyReading() {
   img.src = reading.imagen;
   img.alt = reading.titulo;
   img.loading = 'lazy';
+  img.style.cursor = 'pointer';
+  img.addEventListener('click', () => {
+    import('./renderDetail.js').then(mod => mod.openDetail(reading));
+  });
 
   const info = document.createElement('div');
   info.className = 'reading-info';
