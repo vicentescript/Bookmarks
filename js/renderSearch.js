@@ -4,9 +4,10 @@ import { renderBiblioteca } from './renderHome.js';
 
 function upgradeImageUrl(url) {
   if (!url) return url;
-  if (url.includes('zoom=')) return url.replace(/zoom=\d+/, 'zoom=3');
-  const sep = url.includes('?') ? '&' : '?';
-  return url + sep + 'zoom=3';
+  let u = url.replace(/^http:\/\//, 'https://');
+  u = u.replace(/zoom=\d+/, 'zoom=2');
+  u = u.replace(/edge=curl/, 'edge=None');
+  return u;
 }
 
 function transformBook(item) {
