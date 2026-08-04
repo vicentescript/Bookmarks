@@ -3,7 +3,10 @@ import { getCurrentUser, addUserBook } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
 
 function upgradeImageUrl(url) {
-  return url ? url.replace(/&zoom=\d+/, '&zoom=3') : url;
+  if (!url) return url;
+  if (url.includes('zoom=')) return url.replace(/zoom=\d+/, 'zoom=3');
+  const sep = url.includes('?') ? '&' : '?';
+  return url + sep + 'zoom=3';
 }
 
 function transformBook(item) {
