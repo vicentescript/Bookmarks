@@ -4,6 +4,9 @@ import { renderBiblioteca } from './renderHome.js';
 function logPagesModal(book) {
   const overlay = document.createElement('div');
   overlay.className = 'login-overlay';
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
   document.body.appendChild(overlay);
 
   const modal = document.createElement('div');
@@ -21,31 +24,59 @@ function logPagesModal(book) {
   modal.appendChild(bookInfo);
 
   const stats = getReadingStats(book.id);
+  const prevTotal = stats ? stats.totalPages : 0;
 
-  const label = document.createElement('p');
-  label.className = 'settings-label';
-  label.textContent = 'Páginas leídas hoy:';
-  modal.appendChild(label);
+  const currentLabel = document.createElement('p');
+  currentLabel.className = 'settings-label';
+  currentLabel.textContent = 'Página actual:';
+  modal.appendChild(currentLabel);
+
+  const inputGroup = document.createElement('div');
+  inputGroup.className = 'number-input-group';
+  modal.appendChild(inputGroup);
+
+  const minusBtn = document.createElement('button');
+  minusBtn.className = 'number-spin-btn';
+  minusBtn.type = 'button';
+  minusBtn.textContent = '\u2212';
+  inputGroup.appendChild(minusBtn);
 
   const input = document.createElement('input');
   input.className = 'login-input';
   input.type = 'number';
   input.min = 1;
-  input.placeholder = '0';
-  modal.appendChild(input);
+  input.placeholder = String(prevTotal + 1);
+  inputGroup.appendChild(input);
+
+  const plusBtn = document.createElement('button');
+  plusBtn.className = 'number-spin-btn';
+  plusBtn.type = 'button';
+  plusBtn.textContent = '+';
+  inputGroup.appendChild(plusBtn);
+
+  minusBtn.addEventListener('click', () => {
+    const val = parseInt(input.value) || prevTotal;
+    if (val > 1) input.value = val - 1;
+  });
+
+  plusBtn.addEventListener('click', () => {
+    const val = parseInt(input.value) || prevTotal;
+    input.value = val + 1;
+  });
+
+  if (prevTotal > 0) {
+    const hint = document.createElement('p');
+    hint.className = 'settings-label';
+    hint.style.color = '#666';
+    hint.textContent = `Llevas ${prevTotal} páginas registradas`;
+    modal.appendChild(hint);
+  }
 
   const today = new Date().toISOString().split('T')[0];
   const dateLabel = document.createElement('p');
   dateLabel.className = 'settings-label';
   dateLabel.textContent = `Fecha: ${today}`;
   modal.appendChild(dateLabel);
-
-  if (stats && stats.sessions.length > 0) {
-    const total = document.createElement('p');
-    total.className = 'settings-label';
-    total.textContent = `Total registrado: ${stats.totalPages} pág.`;
-    modal.appendChild(total);
-  }
 
   const saveBtn = document.createElement('button');
   saveBtn.className = 'login-create-btn';
@@ -58,9 +89,11 @@ function logPagesModal(book) {
   modal.appendChild(cancelBtn);
 
   saveBtn.addEventListener('click', () => {
-    const pages = parseInt(input.value);
-    if (!pages || pages <= 0) return;
-    addReadingSession(book.id, today, pages);
+    const currentPage = parseInt(input.value);
+    if (!currentPage || currentPage <= 0) return;
+    const pagesRead = currentPage - prevTotal;
+    if (pagesRead <= 0) return;
+    addReadingSession(book.id, today, pagesRead);
     startReading(book.id);
     overlay.remove();
     renderCurrentlyReading();
@@ -174,12 +207,12 @@ export function renderCurrentlyReading() {
 
   info.appendChild(titulo);
   info.appendChild(autor);
-  info.appendChild(barContainer);
-  info.appendChild(daysContainer);
   info.appendChild(btnContainer);
+  info.appendChild(daysContainer);
 
   card.appendChild(img);
   card.appendChild(info);
+  card.appendChild(barContainer);
 
   if (readingList.length > 1) {
     const nav = document.createElement('div');
