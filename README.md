@@ -86,24 +86,6 @@ Aplicación web para gestionar tu biblioteca personal, seguir tu progreso de lec
 
 ---
 
-## Instalación y ejecución
-
-```bash
-# Instalar dependencias
-pnpm install
-
-# Servidor de desarrollo
-pnpm dev
-
-# Build de producción
-pnpm build
-
-# Previsualizar build
-pnpm preview
-```
-
----
-
 ## Estructura del proyecto
 
 ```
