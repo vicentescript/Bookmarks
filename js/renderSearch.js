@@ -20,7 +20,7 @@ function transformBook(item) {
     imagen: upgradeImageUrl(rawImg) || 'assets/images/default.jpg',
     sinopsis: info.description || 'Sin descripción disponible',
     paginas: info.pageCount || null,
-    genero: (info.categories || ['General'])[0],
+    genero: (info.categories || ['General']).join(', '),
     ratingAPI: info.averageRating || 0,
     estado: 'pendiente',
     rating: 0,

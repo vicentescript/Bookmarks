@@ -1,5 +1,5 @@
-import { getCurrentUser, updateBookStatus, updateBookRating, updateBookInfo, getReadingStats } from './store.js';
-import { renderBiblioteca } from './renderHome.js';
+import { getCurrentUser, updateBookStatus, updateBookRating, updateBookInfo, getReadingStats, removeUserBook } from './store.js';
+import { renderBiblioteca, renderEstrellas } from './renderHome.js';
 import { renderCurrentlyReading } from './renderReading.js';
 
 const ESTADOS = ['pendiente', 'leyendo', 'leido', 'abandonado', 'pausado'];
@@ -16,6 +16,7 @@ function enterEditMode(container, libro, refreshFn) {
   const saveBtn = container.querySelector('.detail-edit-save');
   const cancelBtn = container.querySelector('.detail-edit-cancel');
   const editBtn = container.querySelector('.detail-edit-btn');
+  const delBtn = container.querySelector('.detail-delete-btn');
 
   inputs.forEach(el => {
     const field = el.dataset.field;
@@ -47,6 +48,7 @@ function enterEditMode(container, libro, refreshFn) {
   });
 
   editBtn.style.display = 'none';
+  if (delBtn) delBtn.style.display = 'none';
   saveBtn.style.display = '';
   cancelBtn.style.display = '';
 
@@ -80,15 +82,20 @@ export function openDetail(libro, sourceEl) {
   modal.className = 'detail-modal';
   overlay.appendChild(modal);
 
+  const srcRect = sourceEl ? sourceEl.getBoundingClientRect() : null;
+
   if (sourceEl) {
-    const srcRect = sourceEl.getBoundingClientRect();
     modal.style.position = 'fixed';
-    modal.style.left = srcRect.left + 'px';
-    modal.style.top = srcRect.top + 'px';
-    modal.style.width = srcRect.width + 'px';
-    modal.style.height = srcRect.height + 'px';
-    modal.style.borderRadius = '8px';
+    modal.style.left = '50%';
+    modal.style.top = '50%';
+    modal.style.width = '700px';
+    modal.style.maxWidth = '90vw';
+    modal.style.height = 'auto';
+    modal.style.maxHeight = '90vh';
+    modal.style.borderRadius = '16px';
     modal.style.transition = 'none';
+    modal.style.opacity = '0';
+    modal.style.transform = `translate(-50%, -50%) scale(${srcRect.width / 700})`;
   }
 
   const closeBtn = document.createElement('button');
@@ -223,6 +230,19 @@ export function openDetail(libro, sourceEl) {
     editBtn.textContent = 'Editar';
     actions.appendChild(editBtn);
 
+    const delBtn = document.createElement('button');
+    delBtn.className = 'detail-delete-btn';
+    delBtn.textContent = 'Eliminar';
+    delBtn.addEventListener('click', () => {
+      if (confirm('¿Eliminar "' + libro.titulo + '" de tu biblioteca?')) {
+        removeUserBook(libro.id);
+        overlay.remove();
+        renderBiblioteca();
+        renderCurrentlyReading();
+      }
+    });
+    actions.appendChild(delBtn);
+
     const saveBtn = document.createElement('button');
     saveBtn.className = 'detail-edit-save';
     saveBtn.textContent = 'Guardar';
@@ -242,25 +262,46 @@ export function openDetail(libro, sourceEl) {
     const ratingSection = document.createElement('div');
     ratingSection.className = 'detail-rating';
 
-    const stars = document.createElement('div');
-    stars.className = 'estrellas detail-stars';
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement('span');
-      star.className = 'estrella' + (i <= libro.rating ? ' activa' : '');
-      star.textContent = '★';
-      star.addEventListener('click', () => {
-        const nuevoRating = i === libro.rating ? 0 : i;
-        updateBookRating(libro.id, nuevoRating);
-        renderBiblioteca();
-        renderCurrentlyReading();
-        const allStars = stars.querySelectorAll('.estrella');
-        allStars.forEach((s, idx) => {
-          s.classList.toggle('activa', idx < nuevoRating);
-        });
-      });
-      stars.appendChild(star);
+    const onRate = (nuevoRating) => {
+      updateBookRating(libro.id, nuevoRating);
+      libro.rating = nuevoRating;
+      renderBiblioteca();
+      renderCurrentlyReading();
+      const updatedStars = renderEstrellas(libro, onRate);
+      updatedStars.classList.add('detail-stars', 'interactive');
+      ratingSection.innerHTML = '';
+      ratingSection.appendChild(updatedStars);
+      if (nuevoRating > 0) {
+        ratingSection.appendChild(clearBtn);
+      }
+    };
+
+    const stars = renderEstrellas(libro, onRate);
+    if (stars) {
+      stars.classList.add('detail-stars', 'interactive');
+      ratingSection.appendChild(stars);
     }
-    ratingSection.appendChild(stars);
+
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'rating-clear-btn';
+    clearBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    clearBtn.title = 'Borrar rating';
+    clearBtn.addEventListener('click', () => {
+      updateBookRating(libro.id, 0);
+      libro.rating = 0;
+      renderBiblioteca();
+      renderCurrentlyReading();
+      ratingSection.innerHTML = '';
+      const newStars = renderEstrellas(libro, onRate);
+      if (newStars) {
+        newStars.classList.add('detail-stars', 'interactive');
+        ratingSection.appendChild(newStars);
+      }
+    });
+    if (libro.rating > 0) {
+      ratingSection.appendChild(clearBtn);
+    }
+
     coverCol.appendChild(ratingSection);
 
     body.appendChild(infoCol);
@@ -270,34 +311,27 @@ export function openDetail(libro, sourceEl) {
   renderContent();
 
   function closeModal() {
+    overlay.style.transition = 'opacity 0.25s ease';
+    overlay.style.opacity = '0';
+    
     if (sourceEl) {
       const srcRect = sourceEl.getBoundingClientRect();
-      modal.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
-      modal.style.left = srcRect.left + 'px';
-      modal.style.top = srcRect.top + 'px';
-      modal.style.width = srcRect.width + 'px';
-      modal.style.height = srcRect.height + 'px';
-      modal.style.borderRadius = '8px';
+      modal.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 1, 1)';
+      modal.style.transform = `translate(-50%, -50%) scale(${srcRect.width / 700})`;
+      modal.style.opacity = '0';
     }
-    overlay.style.transition = 'opacity 0.35s ease';
-    overlay.style.opacity = '0';
-    setTimeout(() => overlay.remove(), 360);
+    
+    setTimeout(() => overlay.remove(), 300);
   }
 
   if (sourceEl) {
     void modal.offsetHeight;
-    modal.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-    modal.style.left = '50%';
-    modal.style.top = '50%';
-    modal.style.width = '700px';
-    modal.style.maxWidth = '90vw';
-    modal.style.height = 'auto';
-    modal.style.maxHeight = '90vh';
-    modal.style.transform = 'translate(-50%, -50%)';
-    modal.style.borderRadius = '16px';
+    modal.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+    modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    modal.style.opacity = '1';
   }
 
-  overlay.style.transition = 'opacity 0.3s ease';
+  overlay.style.transition = 'opacity 0.25s ease';
   requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
   overlay.addEventListener('click', (e) => {

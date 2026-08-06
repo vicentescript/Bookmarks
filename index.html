@@ -49,12 +49,15 @@
 
     <section class="seccion-biblioteca">
       <div class="biblioteca-header">
-        <div class="logo-container">
-          <img src="assets/images/favicon.png" alt="Logo Bookmarks" class="header-icon">
-          <h2>Mi biblioteca</h2>
-          <button class="add-manual-btn" id="addManualBtn">+ Añadir</button>
+        <div class="biblioteca-title">
+          <div class="logo-container">
+            <img src="assets/images/favicon.png" alt="Logo Bookmarks" class="header-icon">
+            <h2>Mi biblioteca</h2>
+          </div>
+          <div id="viewToggleContainer"></div>
         </div>
         <div class="biblioteca-tools">
+          <button class="add-manual-btn" id="addManualBtn">+ Añadir libro</button>
           <input type="text" id="librarySearch" placeholder="Filtrar por título o autor..." class="library-search">
           <div class="filtros-estados" id="filtrosEstados"></div>
         </div>

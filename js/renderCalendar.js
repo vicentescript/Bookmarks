@@ -5,11 +5,12 @@ function daysInMonth(year, month) {
 }
 
 function firstWeekday(year, month) {
-  return new Date(year, month - 1, 1).getDay();
+  const day = new Date(year, month - 1, 1).getDay();
+  return day === 0 ? 6 : day - 1;
 }
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-const WEEKDAYS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
+const WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
 
 let currentYear;
 let currentMonth;

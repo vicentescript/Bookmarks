@@ -3,7 +3,8 @@ import { search } from './renderSearch.js';
 import { initBiblioteca } from './renderHome.js';
 import { renderCurrentlyReading } from './renderReading.js';
 import { initAddManual } from './renderAddManual.js';
-import { getCurrentUser } from './store.js';
+import { initLists } from './renderLists.js';
+import { getCurrentUser, updateAllGenres } from './store.js';
 
 login();
 
@@ -15,9 +16,14 @@ document.addEventListener('mousedown', (e) => {
 });
 
 if (getCurrentUser()) {
+  const user = getCurrentUser();
   renderUserAvatar();
   search();
   initBiblioteca();
   renderCurrentlyReading();
   initAddManual();
+  initLists();
+  updateAllGenres(user.id).then(updated => {
+    if (updated > 0) initBiblioteca();
+  });
 }

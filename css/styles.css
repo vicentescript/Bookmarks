@@ -57,10 +57,10 @@ header {
   padding: 10px 56px 10px 16px;
   border: 1px solid #333;
   border-radius: 8px;
-  background: #222;
-  color: #fff;
+  background: #111;
+  color: #eee;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -105,6 +105,14 @@ header {
 }
 .hero p, .hero span {
   caret-color: transparent;
+}
+
+body *:not(input):not(textarea):not(select):not([contenteditable="true"]):not(.detail-edit-input):not(.detail-edit-textarea) {
+  caret-color: transparent;
+}
+
+input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-edit-textarea {
+  caret-color: #eee;
 }
 
 .hero p:focus, .hero span:focus {
@@ -174,13 +182,13 @@ header {
 .busqueda-container input {
   flex: 1;
   max-width: 500px;
-  padding: 12px 18px;
+  padding: 10px 16px;
   border: 1px solid #333;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #111;
   color: #eee;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -215,14 +223,28 @@ header {
 
 .biblioteca-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 30px;
   flex-wrap: wrap;
   gap: 16px;
 }
 
+.biblioteca-title {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#viewToggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .biblioteca-header .logo-container {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -238,9 +260,15 @@ header {
   margin: 0;
 }
 
+.biblioteca-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .add-manual-btn {
-  padding: 6px 14px;
-  border: 1px solid #444;
+  padding: 10px 16px;
+  border: 1px solid #333;
   border-radius: 8px;
   background: transparent;
   color: #999;
@@ -261,19 +289,12 @@ header {
   width: 92vw;
 }
 
-.biblioteca-tools {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
 .library-search {
-  padding: 8px 14px;
+  padding: 10px 16px;
   border: 1px solid #333;
   border-radius: 8px;
-  background: transparent;
-  color: #ccc;
+  background: #111;
+  color: #eee;
   font-family: "Roboto Mono", monospace;
   font-size: 0.85rem;
   outline: none;
@@ -296,26 +317,83 @@ header {
   align-items: center;
 }
 
-.filtro-pill {
-  padding: 8px 18px;
+.estado-dropdown {
+  position: relative;
+}
+
+.estado-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
   border: 1px solid #333;
   border-radius: 8px;
+  background: #111;
+  color: #eee;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  white-space: nowrap;
+}
+
+.estado-dropdown-btn:hover {
+  border-color: #555;
+}
+
+.estado-dropdown-btn:hover {
+  border-color: #555;
+}
+
+.dropdown-arrow {
+  margin-left: 4px;
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.estado-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.estado-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 160px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 6px 0;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.estado-dropdown-menu.open {
+  display: block;
+}
+
+.estado-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
   background: transparent;
-  color: #888;
+  color: #ccc;
   font-family: "Roboto Mono", monospace;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.2s;
+  text-align: left;
+  transition: background 0.15s;
 }
 
-.filtro-pill:hover {
-  border-color: #777;
-  color: #ccc;
-}
-
-.filtro-pill.active {
-  border-color: #ffbd59;
-  color: #ffbd59;
+.estado-dropdown-item:hover {
+  background: #222;
 }
 
 .mis-libros {
@@ -330,6 +408,7 @@ header {
   cursor: pointer;
   position: relative;
   transition: opacity 0.25s ease, transform 0.25s ease;
+  border: 1px solid transparent;
 }
 
 .libros.exit {
@@ -350,7 +429,7 @@ header {
 .ficha-libro {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   aspect-ratio: 2 / 3;
 }
 
@@ -372,6 +451,11 @@ header {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.libros:hover .ficha-libro img {
+  transform: scale(1.05);
 }
 
 .info-libro {
@@ -408,25 +492,25 @@ header {
   overflow: hidden;
   transition: width 0.35s ease 0s;
   z-index: 10;
+  border: none;
 }
 
 .libros:hover {
   z-index: 11;
+  transform: scale(1.03);
 }
 
 .libros:hover .synopsis-panel {
-  border: 1px solid #333;
-  border-left: none;
   transition-delay: 1s;
   width: 260px;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
 }
 
 .libros.flip:hover .synopsis-panel {
   left: auto;
   right: 100%;
   border-radius: 12px 0 0 12px;
-  border: 1px solid #333;
-  border-right: none;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.5);
 }
 
 .libros .synopsis-panel .synopsis-content {
@@ -485,7 +569,7 @@ header {
   background: #111;
   color: #eee;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: border-color 0.2s;
 }
@@ -501,7 +585,7 @@ header {
   background: #111;
   color: #eee;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   outline: none;
 }
 
@@ -538,7 +622,7 @@ header {
   height: 42px;
   min-height: 42px;
   background: #222;
-  border: 1px solid #444;
+  border: 1px solid #333;
   color: #eee;
   font-size: 1.4rem;
   font-weight: 300;
@@ -579,7 +663,7 @@ header {
   background: #ffbd59;
   color: #000;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -704,7 +788,7 @@ header {
   background: transparent;
   color: #eee;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -799,13 +883,13 @@ header {
 
 .add-btn {
   width: 100%;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border: 1px solid #ffbd59;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: #ffbd59;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
@@ -825,24 +909,23 @@ header {
 
 .badge-estado-top {
   position: absolute;
-  top: 8px;
+  top: -3px;
   right: 8px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-family: "Roboto Mono", monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
   z-index: 5;
   pointer-events: none;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.7));
+  line-height: 0;
 }
 
 .card-footer {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 12px;
+  min-height: 38px;
   background: #0d0d0d;
-  border-top: 1px solid #1a1a1a;
+  border-top: 1px solid #111;
   border-radius: 0 0 8px 8px;
 }
 
@@ -853,14 +936,52 @@ header {
 
 .estrella {
   color: #333;
-  cursor: pointer;
+  cursor: default;
   font-size: 1rem;
   transition: color 0.15s;
   user-select: none;
+  position: relative;
 }
 
 .estrella.activa {
   color: #ffbd59;
+}
+
+.estrella.media {
+  background: linear-gradient(to right, #ffbd59 50%, #333 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.estrella-half {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  cursor: pointer;
+}
+
+.estrella-half.left {
+  left: 0;
+}
+
+.estrella-half.right {
+  right: 0;
+}
+
+.estrellas.interactive .estrella {
+  cursor: pointer;
+}
+
+.estrellas.interactive .estrella:hover {
+  color: #ffbd59;
+}
+
+.estrellas.interactive .estrella.media:hover {
+  background: linear-gradient(to right, #ffbd59 50%, #ffbd59 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 .detail-stars .estrella:hover {
@@ -884,34 +1005,6 @@ header {
   flex: 1;
 }
 
-.delete-overlay {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 6px;
-  background: rgba(0,0,0,0.6);
-  color: #e57373;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 5;
-}
-
-.libros:hover .delete-overlay {
-  opacity: 1;
-}
-
-.delete-overlay:hover {
-  background: #e57373;
-  color: #000;
-}
-
 .empty-msg {
   grid-column: 1 / -1;
   text-align: center;
@@ -919,6 +1012,277 @@ header {
   font-family: "Roboto Mono", monospace;
   font-size: 0.9rem;
   padding: 40px 0;
+}
+
+.view-toggle {
+  display: inline-flex;
+  position: relative;
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 3px;
+  opacity: 0.5;
+  transition: opacity 1s;
+}
+
+.view-toggle:hover,
+.view-toggle.stay-visible {
+  opacity: 1;
+}
+
+.view-toggle-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.25s;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.view-toggle-btn:hover {
+  color: #ccc;
+}
+
+.view-toggle-btn.active {
+  color: #fff;
+}
+
+.view-toggle-pill {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  height: calc(100% - 6px);
+  width: calc(50% - 5px);
+  background: #333;
+  border-radius: 6px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.view-toggle-pill.right {
+  transform: translateX(calc(100% + 4px));
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.mis-libros:has(.lists-grid) {
+  display: block;
+}
+
+.list-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  width: 100%;
+  position: relative;
+}
+
+.list-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 85%;
+  background: linear-gradient(to top, #111 20%, rgba(17,17,17,0.9) 40%, rgba(17,17,17,0.5) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.list-card:hover {
+  border-color: #444;
+}
+
+.list-covers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  height: 180px;
+  min-height: 180px;
+  max-height: 180px;
+  background: #1a1a1a;
+}
+
+.list-covers img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.list-covers img:hover {
+  transform: scale(1.05);
+}
+
+.list-cover-placeholder {
+  background: #1a1a1a;
+}
+
+.list-info {
+  padding: 10px 12px 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.list-name {
+  font-family: "League Gothic", sans-serif;
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0 0 2px;
+}
+
+.list-count {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.list-actions {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.list-action-btn {
+  padding: 6px 14px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: transparent;
+  color: #999;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.list-action-btn:hover {
+  border-color: #ffbd59;
+  color: #ffbd59;
+}
+
+.list-action-btn.danger:hover {
+  border-color: #e57373;
+  color: #e57373;
+}
+
+.list-action-btn.add {
+  border-color: #81c784;
+  color: #81c784;
+}
+
+.list-action-btn.add:hover {
+  background: #81c784;
+  color: #000;
+}
+
+.add-list-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #ffbd59;
+  font-family: "Roboto Mono", monospace;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.add-list-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.add-list-btn:hover {
+  border-color: #ffbd59;
+  background: rgba(255, 189, 89, 0.1);
+}
+
+.list-detail-modal {
+  max-width: 560px;
+  width: 92vw;
+}
+
+.list-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.list-detail-books {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.list-book-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #222;
+}
+
+.list-book-row:last-child {
+  border-bottom: none;
+}
+
+.list-book-row img {
+  width: 45px;
+  height: 67px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.list-book-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.list-book-title {
+  color: #eee;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-book-author {
+  color: #666;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .no-reading {
@@ -1050,13 +1414,13 @@ header {
 }
 
 .reading-btn {
-  padding: 8px 14px;
+  padding: 10px 16px;
   border: 1px solid #ffbd59;
   border-radius: 8px;
   background: transparent;
   color: #ffbd59;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -1165,7 +1529,7 @@ header {
 
 .cal-day.has-reading {
   border-color: #333;
-  background: rgba(255, 189, 89, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .cal-day-num {
@@ -1346,13 +1710,13 @@ header {
 }
 
 .detail-estado-select {
-  padding: 8px 12px;
+  padding: 10px 16px;
   border: 1px solid #333;
   border-radius: 8px;
   background: #111;
   color: #eee;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   outline: none;
   cursor: pointer;
   flex: 1;
@@ -1361,33 +1725,49 @@ header {
 .detail-edit-btn,
 .detail-edit-save,
 .detail-edit-cancel {
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-radius: 8px;
   border: 1px solid #333;
   background: transparent;
-  color: #ffbd59;
+  color: #999;
   font-family: "Roboto Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
 }
 
 .detail-edit-btn:hover,
-.detail-edit-save:hover,
-.detail-edit-cancel:hover {
+.detail-edit-save:hover {
   background: rgba(255, 189, 89, 0.1);
 }
 
-.detail-edit-cancel {
-  color: #999;
+.detail-edit-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.detail-delete-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #e57373;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.detail-delete-btn:hover {
+  background: rgba(229, 115, 115, 0.15);
 }
 
 .detail-edit-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #444;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border: 1px solid #333;
+  border-radius: 8px;
   background: #111;
   color: #eee;
   font-family: "Roboto Mono", monospace;
@@ -1417,11 +1797,36 @@ header {
 .detail-rating {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 12px;
+  position: relative;
 }
 
 .detail-stars .estrella {
-  font-size: 1.5rem;
+  font-size: 2rem;
+}
+
+.rating-clear-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #e57373;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.rating-clear-btn:hover {
+  background: rgba(229, 115, 115, 0.2);
 }
 
 .detail-progress {
@@ -1639,7 +2044,7 @@ footer .footer-link:hover {
     grid-column: 1;
     position: absolute;
     left: 0;
-    top: 0;
+  top: 0;
     width: 100%;
     height: 100%;
     padding: 80px 20px 20px;
@@ -1722,23 +2127,23 @@ footer .footer-link:hover {
   }
 
   .libros:hover .ficha-libro::after {
-    opacity: 0;
+    opacity: 0 !important;
   }
 
   .libros:hover {
-    transform: none;
+    transform: none !important;
+  }
+
+  .libros:hover .ficha-libro img {
+    transform: none !important;
   }
 
   .libros:hover .synopsis-panel {
-    display: none;
+    display: none !important;
   }
 
   .libros.flip:hover .synopsis-panel {
-    display: none;
-  }
-
-  .libros:hover .delete-overlay {
-    opacity: 0;
+    display: none !important;
   }
 
   .detail-body {

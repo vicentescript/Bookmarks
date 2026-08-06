@@ -37,10 +37,9 @@ Aplicación web para gestionar tu biblioteca personal, seguir tu progreso de lec
 - **Selector de páginas** con botones +/− para ajustar el número
 - Validación de campos obligatorios (Título y Autor)
 - Los libros se añaden como "Pendiente" por defecto
-- Cierre del formulario al hacer clic fuera del modal
 
 ### Seguimiento de lectura
-- Registro de **página actual** — el sistema calcula automáticamente las páginas leídas
+- Registro de **página actual**
 - **Barra de progreso** visual con porcentaje y conteo de páginas
 - Conteo de **días transcurridos** desde el inicio de lectura
 - **Carousel multi-libro** con navegación prev/next para usuarios con varios libros en lectura
@@ -84,23 +83,6 @@ Aplicación web para gestionar tu biblioteca personal, seguir tu progreso de lec
 | Persistencia | localStorage |
 | PWA | Web App Manifest |
 
----
-
-## Instalación y ejecución
-
-```bash
-# Instalar dependencias
-pnpm install
-
-# Servidor de desarrollo
-pnpm dev
-
-# Build de producción
-pnpm build
-
-# Previsualizar build
-pnpm preview
-```
 
 ---
 

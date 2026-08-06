@@ -1,6 +1,9 @@
 const STORAGE_USERS = 'bookmarks_users';
 const STORAGE_CURRENT = 'bookmarks_currentUser';
 const STORAGE_BOOKS = 'bookmarks_books';
+const STORAGE_LISTS = 'bookmarks_lists';
+
+const GOOGLE_BOOKS_KEY = 'AIzaSyC394XaV60CW3kCwC_L8RoKur-oABYi0ts';
 
 export function getUsers() {
   return JSON.parse(localStorage.getItem(STORAGE_USERS)) || [];
@@ -144,4 +147,85 @@ export function getSessionsByMonth(userId, year, month) {
   });
 
   return result;
+}
+
+export function getUserLists(userId) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  return all.filter(l => l.userId === userId);
+}
+
+export function createList(userId, name, thumbnail) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  const list = {
+    id: crypto.randomUUID(),
+    userId,
+    name,
+    thumbnail: thumbnail || '',
+    bookIds: [],
+    createdAt: Date.now(),
+  };
+  all.push(list);
+  localStorage.setItem(STORAGE_LISTS, JSON.stringify(all));
+  return list;
+}
+
+export function updateList(listId, data) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  const list = all.find(l => l.id === listId);
+  if (!list) return;
+  Object.assign(list, data);
+  localStorage.setItem(STORAGE_LISTS, JSON.stringify(all));
+}
+
+export function deleteList(listId) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  const filtered = all.filter(l => l.id !== listId);
+  localStorage.setItem(STORAGE_LISTS, JSON.stringify(filtered));
+}
+
+export function addBookToList(listId, bookId) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  const list = all.find(l => l.id === listId);
+  if (!list || list.bookIds.includes(bookId)) return false;
+  list.bookIds.push(bookId);
+  localStorage.setItem(STORAGE_LISTS, JSON.stringify(all));
+  return true;
+}
+
+export function removeBookFromList(listId, bookId) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  const list = all.find(l => l.id === listId);
+  if (!list) return;
+  list.bookIds = list.bookIds.filter(id => id !== bookId);
+  localStorage.setItem(STORAGE_LISTS, JSON.stringify(all));
+}
+
+export function getListBooks(listId) {
+  const allLists = JSON.parse(localStorage.getItem(STORAGE_LISTS)) || [];
+  const list = allLists.find(l => l.id === listId);
+  if (!list) return [];
+  const allBooks = JSON.parse(localStorage.getItem(STORAGE_BOOKS)) || [];
+  return list.bookIds.map(id => allBooks.find(b => b.id === id)).filter(Boolean);
+}
+
+export async function updateAllGenres(userId) {
+  const all = JSON.parse(localStorage.getItem(STORAGE_BOOKS)) || [];
+  const userBooks = all.filter(b => b.userId === userId && b.bookId);
+  let updated = 0;
+
+  for (const book of userBooks) {
+    try {
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${book.bookId}?key=${GOOGLE_BOOKS_KEY}`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const cats = data.volumeInfo?.categories;
+      if (cats && cats.length > 0) {
+        book.genero = cats.join(', ');
+        updated++;
+      }
+    } catch (e) {}
+  }
+
+  localStorage.setItem(STORAGE_BOOKS, JSON.stringify(all));
+  return updated;
 }
