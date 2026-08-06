@@ -83,7 +83,6 @@ Aplicación web para gestionar tu biblioteca personal, seguir tu progreso de lec
 | Persistencia | localStorage |
 | PWA | Web App Manifest |
 
-
 ---
 
 ## Estructura del proyecto
