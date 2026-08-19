@@ -437,14 +437,10 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0, 0, 0, 0.122) 60%);
+  background: linear-gradient(to top, rgba(0,0,0,1) 15%, rgba(0, 0, 0, 0.066) 70%);
   transition: background 0.35s ease;
   pointer-events: none;
   z-index: 1;
-}
-
-.libros:hover .ficha-libro::after {
-  background: linear-gradient(to top, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0.849) 20%, rgba(0, 0, 0, 0) 100%);
 }
 
 .ficha-libro img {
@@ -455,7 +451,7 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
 }
 
 .libros:hover .ficha-libro img {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .info-libro {
@@ -476,56 +472,22 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
 }
 
 .info-libro .autor {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: #ccc;
   margin: 2px 0 0;
 }
 
-.libros .synopsis-panel {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  width: 0;
-  height: 100%;
-  background: #1a1a1a;
-  border-radius: 0 12px 12px 0;
-  overflow: hidden;
-  transition: width 0.35s ease 0s;
-  z-index: 10;
-  border: none;
+.info-libro .estrellas {
+  margin-top: 4px;
 }
 
-.libros:hover {
-  z-index: 11;
-  transform: scale(1.03);
+.info-libro .estrella {
+  font-size: 1.2rem;
 }
 
-.libros:hover .synopsis-panel {
-  transition-delay: 1s;
-  width: 260px;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
-}
 
-.libros.flip:hover .synopsis-panel {
-  left: auto;
-  right: 100%;
-  border-radius: 12px 0 0 12px;
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.5);
-}
 
-.libros .synopsis-panel .synopsis-content {
-  padding: 16px;
-  font-family: "Roboto Mono", monospace;
-  font-size: 0.78rem;
-  color: #aaa;
-  line-height: 1.5;
-  width: 260px;
-  box-sizing: border-box;
-  display: -webkit-box;
-  -webkit-line-clamp: 12;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+
 
 .login-overlay {
   position: fixed;
@@ -918,15 +880,7 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
 }
 
 .card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  min-height: 38px;
-  background: #0d0d0d;
-  border-top: 1px solid #111;
-  border-radius: 0 0 8px 8px;
+  display: none;
 }
 
 .estrellas {
@@ -1665,7 +1619,7 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
 
 .detail-author {
   color: #999;
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin: 0;
 }
 
@@ -1680,7 +1634,8 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
 
 .detail-metas {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 4px;
   font-size: 0.8rem;
   color: #999;
 }
@@ -1796,37 +1751,38 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
 
 .detail-rating {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 8px;
   position: relative;
 }
 
 .detail-stars .estrella {
-  font-size: 2rem;
+  font-size: 1.2rem;
 }
 
 .rating-clear-btn {
   position: absolute;
-  right: 0;
+  left: 120px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: #e57373;
+  color: #e573738a;
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
 }
 
 .rating-clear-btn:hover {
-  background: rgba(229, 115, 115, 0.2);
+  background: rgba(229, 115, 115, 0.318);
+  color: #e57
 }
 
 .detail-progress {
@@ -1852,6 +1808,135 @@ input, textarea, select, [contenteditable="true"], .detail-edit-input, .detail-e
   font-size: 0.75rem;
   color: #ffbd59;
   font-family: "Roboto Mono", monospace;
+}
+
+.detail-start-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid #ffbd59;
+  background: transparent;
+  color: #ffbd59;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.detail-start-dropdown.open .detail-start-btn {
+  border-radius: 8px 8px 0 0;
+}
+
+.detail-start-btn:hover {
+  background: rgba(255, 189, 89, 0.15);
+}
+
+.detail-start-btn.reading {
+  border-color: #ffbd59;
+  color: #ffbd59;
+}
+
+.detail-start-dropdown {
+  position: relative;
+  flex: 2;
+  margin-top: 8px;
+}
+
+.detail-start-dropdown .estado-quick-menu {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
+  margin-top: 0;
+  border-color: transparent;
+  pointer-events: none;
+}
+
+.detail-start-dropdown.open .estado-quick-menu {
+  max-height: 300px;
+  opacity: 1;
+  margin-top: 4px;
+  border-color: #333;
+  pointer-events: auto;
+}
+
+.detail-actions-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: flex-start;
+  margin-top: auto;
+}
+
+.detail-actions-row .detail-details-btn {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.estado-quick-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid #333;
+  border-radius: 0 0 8px 8px;
+  border-top: none;
+  background: #111;
+}
+
+.estado-quick-item {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ccc;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.estado-quick-item:hover {
+  background: #222;
+}
+
+.detail-details-btn {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #999;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.detail-details-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #555;
+}
+
+.detail-back-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #999;
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 12px;
+}
+
+.detail-back-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #555;
 }
 
 footer {
@@ -2138,13 +2223,6 @@ footer .footer-link:hover {
     transform: none !important;
   }
 
-  .libros:hover .synopsis-panel {
-    display: none !important;
-  }
-
-  .libros.flip:hover .synopsis-panel {
-    display: none !important;
-  }
 
   .detail-body {
     flex-direction: column;

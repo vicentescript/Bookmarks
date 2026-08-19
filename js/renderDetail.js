@@ -103,11 +103,21 @@ export function openDetail(libro, sourceEl) {
   closeBtn.textContent = '✕';
   modal.appendChild(closeBtn);
 
+  let currentView = 'main';
+
   function renderContent() {
     modal.querySelector('.detail-body')?.remove();
 
+    if (currentView === 'main') {
+      renderMainView();
+    } else {
+      renderDetailsView();
+    }
+  }
+
+  function renderMainView() {
     const body = document.createElement('div');
-    body.className = 'detail-body';
+    body.className = 'detail-body detail-body-main';
 
     const coverCol = document.createElement('div');
     coverCol.className = 'detail-cover';
@@ -115,8 +125,6 @@ export function openDetail(libro, sourceEl) {
     const img = document.createElement('img');
     img.src = libro.imagen;
     img.alt = libro.titulo;
-    img.className = 'detail-editable';
-    img.dataset.field = 'imagen';
     coverCol.appendChild(img);
 
     body.appendChild(coverCol);
@@ -125,37 +133,70 @@ export function openDetail(libro, sourceEl) {
     infoCol.className = 'detail-info';
 
     const titulo = document.createElement('h2');
-    titulo.className = 'detail-title detail-editable';
-    titulo.dataset.field = 'titulo';
+    titulo.className = 'detail-title';
     titulo.textContent = libro.titulo;
     infoCol.appendChild(titulo);
 
     const autor = document.createElement('p');
-    autor.className = 'detail-author detail-editable';
-    autor.dataset.field = 'autor';
+    autor.className = 'detail-author';
     autor.textContent = libro.autor;
     infoCol.appendChild(autor);
 
-    if (libro.sinopsis && libro.sinopsis !== 'Sin descripción disponible') {
-      const desc = document.createElement('p');
-      desc.className = 'detail-desc detail-editable';
-      desc.dataset.field = 'sinopsis';
-      desc.textContent = libro.sinopsis;
-      infoCol.appendChild(desc);
+    if (libro.estado === 'leido' || (libro.rating && libro.rating > 0)) {
+      const ratingSection = document.createElement('div');
+      ratingSection.className = 'detail-rating';
+
+      const onRate = (nuevoRating) => {
+        updateBookRating(libro.id, nuevoRating);
+        libro.rating = nuevoRating;
+        renderBiblioteca();
+        renderCurrentlyReading();
+        const updatedStars = renderEstrellas(libro, onRate);
+        updatedStars.classList.add('detail-stars', 'interactive');
+        ratingSection.innerHTML = '';
+        ratingSection.appendChild(updatedStars);
+        if (nuevoRating > 0) {
+          ratingSection.appendChild(clearBtn);
+        }
+      };
+
+      const stars = renderEstrellas(libro, onRate);
+      if (stars) {
+        stars.classList.add('detail-stars', 'interactive');
+        ratingSection.appendChild(stars);
+      }
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'rating-clear-btn';
+      clearBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      clearBtn.title = 'Borrar rating';
+      clearBtn.addEventListener('click', () => {
+        updateBookRating(libro.id, 0);
+        libro.rating = 0;
+        renderBiblioteca();
+        renderCurrentlyReading();
+        ratingSection.innerHTML = '';
+        const newStars = renderEstrellas(libro, onRate);
+        if (newStars) {
+          newStars.classList.add('detail-stars', 'interactive');
+          ratingSection.appendChild(newStars);
+        }
+      });
+      if (libro.rating > 0) {
+        ratingSection.appendChild(clearBtn);
+      }
+
+      infoCol.appendChild(ratingSection);
     }
 
     const metas = document.createElement('div');
     metas.className = 'detail-metas';
 
     const pag = document.createElement('span');
-    pag.className = 'detail-editable';
-    pag.dataset.field = 'paginas';
     pag.textContent = (libro.paginas || '?') + ' pág.';
     metas.appendChild(pag);
 
     const gen = document.createElement('span');
-    gen.className = 'detail-editable';
-    gen.dataset.field = 'genero';
     gen.textContent = libro.genero || 'General';
     metas.appendChild(gen);
 
@@ -201,29 +242,105 @@ export function openDetail(libro, sourceEl) {
       infoCol.appendChild(statsDiv);
     }
 
+    const startBtnContainer = document.createElement('div');
+    startBtnContainer.className = 'detail-start-dropdown';
+
+    const startBtn = document.createElement('button');
+    startBtn.className = 'detail-start-btn';
+    if (libro.estado === 'leyendo') {
+      startBtn.textContent = 'Leyendo ▾';
+      startBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startBtnContainer.classList.toggle('open');
+      });
+
+      const menu = document.createElement('div');
+      menu.className = 'estado-quick-menu';
+      const otrosEstados = ESTADOS.filter(est => est !== 'leyendo');
+      otrosEstados.forEach(est => {
+        const item = document.createElement('button');
+        item.className = 'estado-quick-item';
+        item.textContent = ESTADOS_LABEL[est];
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateBookStatus(libro.id, est);
+          libro.estado = est;
+          renderBiblioteca();
+          renderCurrentlyReading();
+          renderContent();
+        });
+        menu.appendChild(item);
+      });
+
+      startBtnContainer.appendChild(startBtn);
+      startBtnContainer.appendChild(menu);
+
+      document.addEventListener('click', () => {
+        startBtnContainer.classList.remove('open');
+      });
+    } else {
+      startBtn.textContent = 'Empezar a leer';
+      startBtn.addEventListener('click', () => {
+        updateBookStatus(libro.id, 'leyendo');
+        libro.estado = 'leyendo';
+        renderBiblioteca();
+        renderCurrentlyReading();
+        renderContent();
+      });
+      startBtnContainer.appendChild(startBtn);
+    }
+
+    const actionsRow = document.createElement('div');
+    actionsRow.className = 'detail-actions-row';
+
+    const detailsBtn = document.createElement('button');
+    detailsBtn.className = 'detail-details-btn';
+    detailsBtn.textContent = '+ Info';
+    detailsBtn.addEventListener('click', () => {
+      currentView = 'details';
+      renderContent();
+    });
+    actionsRow.appendChild(startBtnContainer);
+    actionsRow.appendChild(detailsBtn);
+    infoCol.appendChild(actionsRow);
+
+    body.appendChild(infoCol);
+    modal.appendChild(body);
+  }
+
+  function renderDetailsView() {
+    const body = document.createElement('div');
+    body.className = 'detail-body detail-body-details';
+
+    const coverCol = document.createElement('div');
+    coverCol.className = 'detail-cover';
+
+    const img = document.createElement('img');
+    img.src = libro.imagen;
+    img.alt = libro.titulo;
+    coverCol.appendChild(img);
+
+    body.appendChild(coverCol);
+
+    const infoCol = document.createElement('div');
+    infoCol.className = 'detail-info';
+
+    const titulo = document.createElement('h2');
+    titulo.className = 'detail-title detail-editable';
+    titulo.dataset.field = 'titulo';
+    titulo.textContent = libro.titulo;
+    infoCol.appendChild(titulo);
+
+    if (libro.sinopsis && libro.sinopsis !== 'Sin descripción disponible') {
+      const desc = document.createElement('p');
+      desc.className = 'detail-desc detail-editable';
+      desc.dataset.field = 'sinopsis';
+      desc.textContent = libro.sinopsis;
+      infoCol.appendChild(desc);
+    }
+
     const actions = document.createElement('div');
     actions.className = 'detail-actions';
-
-    const estadoLabel = document.createElement('span');
-    estadoLabel.className = 'detail-estado-label';
-    estadoLabel.textContent = 'Estado:';
-    actions.appendChild(estadoLabel);
-
-    const estadoSelect = document.createElement('select');
-    estadoSelect.className = 'detail-estado-select';
-    ESTADOS.forEach(est => {
-      const opt = document.createElement('option');
-      opt.value = est;
-      opt.textContent = ESTADOS_LABEL[est];
-      if (est === libro.estado) opt.selected = true;
-      estadoSelect.appendChild(opt);
-    });
-    estadoSelect.addEventListener('change', () => {
-      updateBookStatus(libro.id, estadoSelect.value);
-      renderBiblioteca();
-      renderCurrentlyReading();
-    });
-    actions.appendChild(estadoSelect);
 
     const editBtn = document.createElement('button');
     editBtn.className = 'detail-edit-btn';
@@ -259,50 +376,14 @@ export function openDetail(libro, sourceEl) {
 
     editBtn.addEventListener('click', () => enterEditMode(body, libro, renderContent));
 
-    const ratingSection = document.createElement('div');
-    ratingSection.className = 'detail-rating';
-
-    const onRate = (nuevoRating) => {
-      updateBookRating(libro.id, nuevoRating);
-      libro.rating = nuevoRating;
-      renderBiblioteca();
-      renderCurrentlyReading();
-      const updatedStars = renderEstrellas(libro, onRate);
-      updatedStars.classList.add('detail-stars', 'interactive');
-      ratingSection.innerHTML = '';
-      ratingSection.appendChild(updatedStars);
-      if (nuevoRating > 0) {
-        ratingSection.appendChild(clearBtn);
-      }
-    };
-
-    const stars = renderEstrellas(libro, onRate);
-    if (stars) {
-      stars.classList.add('detail-stars', 'interactive');
-      ratingSection.appendChild(stars);
-    }
-
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'rating-clear-btn';
-    clearBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-    clearBtn.title = 'Borrar rating';
-    clearBtn.addEventListener('click', () => {
-      updateBookRating(libro.id, 0);
-      libro.rating = 0;
-      renderBiblioteca();
-      renderCurrentlyReading();
-      ratingSection.innerHTML = '';
-      const newStars = renderEstrellas(libro, onRate);
-      if (newStars) {
-        newStars.classList.add('detail-stars', 'interactive');
-        ratingSection.appendChild(newStars);
-      }
+    const backBtn = document.createElement('button');
+    backBtn.className = 'detail-back-btn';
+    backBtn.textContent = '← Volver';
+    backBtn.addEventListener('click', () => {
+      currentView = 'main';
+      renderContent();
     });
-    if (libro.rating > 0) {
-      ratingSection.appendChild(clearBtn);
-    }
-
-    coverCol.appendChild(ratingSection);
+    infoCol.appendChild(backBtn);
 
     body.appendChild(infoCol);
     modal.appendChild(body);
@@ -313,14 +394,14 @@ export function openDetail(libro, sourceEl) {
   function closeModal() {
     overlay.style.transition = 'opacity 0.25s ease';
     overlay.style.opacity = '0';
-    
+
     if (sourceEl) {
       const srcRect = sourceEl.getBoundingClientRect();
       modal.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 1, 1)';
       modal.style.transform = `translate(-50%, -50%) scale(${srcRect.width / 700})`;
       modal.style.opacity = '0';
     }
-    
+
     setTimeout(() => overlay.remove(), 300);
   }
 

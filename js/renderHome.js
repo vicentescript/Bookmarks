@@ -54,12 +54,17 @@ export function renderEstrellas(libro, onRate) {
   return container;
 }
 
+function bookmarkSvg(color) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 577 577">
+<path fill="${color}" d="M257 8.93C352.97 8.93 448.44 8.93 543.9 8.93C544.03 9.24 544.15 9.55 544.28 9.86C540.03 12.77 535.68 15.55 531.56 18.62C506.94 36.98 492.7 61.44 488.92 91.91C488.27 97.18 487.91 102.52 487.91 107.82C487.86 256.13 487.88 404.43 487.88 552.73C487.88 554.69 487.88 556.64 487.88 559.98C485.68 558.34 484.36 557.58 483.31 556.55C456.6 530.04 429.97 503.45 403.22 476.98C362.86 437.06 322.37 397.25 282.06 357.28C279.12 354.36 277.48 354.82 274.83 357.46C235.83 396.21 196.77 434.87 157.7 473.54C129.76 501.19 101.79 528.82 73.82 556.44C72.8 557.45 71.63 558.3 69.55 560.04C69.37 557.23 69.18 555.53 69.18 553.83C69.18 408.53 69.76 263.22 68.9 117.92C68.61 69.71 98 33.34 137.72 17.87C152.76 12.01 168.39 9.05 184.52 8.98C208.51 8.88 232.51 8.94 257 8.93Z"/>
+</svg>`;
+}
+
 const SVG_ICONS = {
-  pendiente: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><path fill="#4fc3f7" d="M416 480L256 357.41L96 480V32h320Z"/></svg>`,
-  leyendo: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><path fill="#ffbd59" d="M416 480L256 357.41L96 480V32h320Z"/></svg>`,
-  leido: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><path fill="#81c784" d="M416 480L256 357.41L96 480V32h320Z"/></svg>`,
-  abandonado: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><path fill="#e57373" d="M416 480L256 357.41L96 480V32h320Z"/></svg>`,
-  pausado: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 512 512"><path fill="#9c7cf4" d="M416 480L256 357.41L96 480V32h320Z"/></svg>`,
+  leyendo: bookmarkSvg('#ffbd59'),
+  leido: bookmarkSvg('#81c784'),
+  abandonado: bookmarkSvg('#e57373'),
+  pausado: bookmarkSvg('#9c7cf4'),
 };
 
 function renderBadge(estado) {
@@ -100,24 +105,14 @@ function renderCard(libro) {
   infoLibro.appendChild(titulo);
   infoLibro.appendChild(autor);
 
+  const estrellas = renderEstrellas(libro);
+  if (estrellas) infoLibro.appendChild(estrellas);
+
   imgContainer.appendChild(infoLibro);
 
-  const synopsisPanel = document.createElement('div');
-  synopsisPanel.className = 'synopsis-panel';
-  const synopsisContent = document.createElement('div');
-  synopsisContent.className = 'synopsis-content';
-  synopsisContent.textContent = libro.sinopsis;
-  synopsisPanel.appendChild(synopsisContent);
 
-  const footer = document.createElement('div');
-  footer.className = 'card-footer';
-
-  const estrellas = renderEstrellas(libro);
-  if (estrellas) footer.appendChild(estrellas);
 
   article.appendChild(imgContainer);
-  article.appendChild(footer);
-  article.appendChild(synopsisPanel);
 
   article.addEventListener('mouseenter', () => {
     const grid = article.closest('.mis-libros');
@@ -131,7 +126,7 @@ function renderCard(libro) {
   });
 
   article.addEventListener('click', (e) => {
-    if (e.target.closest('.card-footer') || e.target.closest('.badge-estado-top') || e.target.closest('.synopsis-panel')) return;
+    if (e.target.closest('.badge-estado-top') || e.target.closest('.synopsis-panel')) return;
     import('./renderDetail.js').then(mod => mod.openDetail(libro, article));
   });
 

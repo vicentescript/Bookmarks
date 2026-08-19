@@ -97,34 +97,42 @@ export function search() {
     if (!overlay || closing) return;
     closing = true;
 
-    const barR = floatingBar.getBoundingClientRect();
-
-    floatingBar.style.transition = 'none';
-    floatingBar.style.left = barR.left + 'px';
-    floatingBar.style.top = barR.top + 'px';
-    floatingBar.style.width = barR.width + 'px';
-    floatingBar.style.height = barR.height + 'px';
-    floatingBar.style.transform = 'none';
-
-    void floatingBar.offsetHeight;
-
-    floatingBar.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
-    floatingBar.style.left = headerRect.left + 'px';
-    floatingBar.style.top = headerRect.top + 'px';
-    floatingBar.style.width = headerRect.width + 'px';
-    floatingBar.style.height = headerRect.height + 'px';
-
-    overlay.style.opacity = '0';
+    const btn = floatingBar.querySelector('.add-manual-btn');
+    if (btn) {
+      btn.style.transition = 'opacity 0.15s ease';
+      btn.style.opacity = '0';
+    }
 
     setTimeout(() => {
-      floatingBar.remove();
-      overlay.remove();
-      floatingBar = null;
-      overlay = null;
-      closing = false;
-      headerSearch.style.visibility = '';
-      document.body.style.overflow = '';
-    }, 400);
+      const barR = floatingBar.getBoundingClientRect();
+
+      floatingBar.style.transition = 'none';
+      floatingBar.style.left = barR.left + 'px';
+      floatingBar.style.top = barR.top + 'px';
+      floatingBar.style.width = barR.width + 'px';
+      floatingBar.style.height = barR.height + 'px';
+      floatingBar.style.transform = 'none';
+
+      void floatingBar.offsetHeight;
+
+      floatingBar.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+      floatingBar.style.left = headerRect.left + 'px';
+      floatingBar.style.top = headerRect.top + 'px';
+      floatingBar.style.width = headerRect.width + 'px';
+      floatingBar.style.height = headerRect.height + 'px';
+
+      overlay.style.opacity = '0';
+
+      setTimeout(() => {
+        floatingBar.remove();
+        overlay.remove();
+        floatingBar = null;
+        overlay = null;
+        closing = false;
+        headerSearch.style.visibility = '';
+        document.body.style.overflow = '';
+      }, 400);
+    }, 150);
   }
 
   function openSearchOverlay() {
@@ -179,15 +187,38 @@ export function search() {
     floatingBar.style.transform = 'translateX(-50%)';
     floatingBar.style.padding = '0';
 
+    const addManualBtn = document.createElement('button');
+    addManualBtn.className = 'add-manual-btn';
+    addManualBtn.textContent = '+ Añadir libro manualmente';
+    addManualBtn.style.cssText = `
+      display: block;
+      margin: 12px auto 0;
+      opacity: 0;
+      transition: opacity 0.3s 0.35s ease;
+    `;
+    addManualBtn.addEventListener('click', () => {
+      floatingBar.style.transition = 'none';
+      overlay.style.transition = 'none';
+      floatingBar.remove();
+      overlay.remove();
+      floatingBar = null;
+      overlay = null;
+      closing = false;
+      headerSearch.style.visibility = '';
+      document.body.style.overflow = '';
+      import('./renderAddManual.js').then(mod => mod.openAddManual());
+    });
+    floatingBar.appendChild(addManualBtn);
+
     const resultsGrid = document.createElement('div');
     resultsGrid.style.cssText = `
       position: fixed;
-      top: 26vh;
+      top: 32vh;
       left: 50%;
       transform: translateX(-50%);
       width: 800px;
       max-width: 85vw;
-      max-height: 60vh;
+      max-height: 55vh;
       overflow-y: auto;
       opacity: 0;
       transition: opacity 0.3s 0.35s ease;
@@ -212,7 +243,7 @@ export function search() {
     closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeOverlay(); });
     overlay.appendChild(closeBtn);
 
-    setTimeout(() => { resultsGrid.style.opacity = '1'; }, 50);
+    setTimeout(() => { resultsGrid.style.opacity = '1'; addManualBtn.style.opacity = '1'; }, 50);
 
     cloneInput.addEventListener('keydown', async (e) => {
       if (e.key === 'Enter' && cloneInput.value.trim()) {

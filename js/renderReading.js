@@ -64,14 +64,6 @@ function logPagesModal(book) {
     input.value = val + 1;
   });
 
-  if (prevTotal > 0) {
-    const hint = document.createElement('p');
-    hint.className = 'settings-label';
-    hint.style.color = '#666';
-    hint.textContent = `Llevas ${prevTotal} páginas registradas`;
-    modal.appendChild(hint);
-  }
-
   const today = new Date().toISOString().split('T')[0];
   const dateLabel = document.createElement('p');
   dateLabel.className = 'settings-label';

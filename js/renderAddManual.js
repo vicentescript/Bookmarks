@@ -4,10 +4,10 @@ import { renderBiblioteca } from './renderHome.js';
 export function initAddManual() {
   const btn = document.getElementById('addManualBtn');
   if (!btn) return;
-  btn.addEventListener('click', openAddManualModal);
+  btn.addEventListener('click', openAddManual);
 }
 
-function openAddManualModal() {
+export function openAddManual() {
   const overlay = document.createElement('div');
   overlay.className = 'login-overlay';
   overlay.addEventListener('click', (e) => {
@@ -21,7 +21,7 @@ function openAddManualModal() {
 
   const title = document.createElement('h2');
   title.className = 'login-title';
-  title.textContent = 'Añadir libro manual';
+  title.textContent = 'Añadir libro manualmente';
   modal.appendChild(title);
 
   const textFields = [
