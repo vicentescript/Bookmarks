@@ -1,7 +1,7 @@
 # Documentación del Proyecto Animatch
 
-> **Repositorio original:** `/home/Vicente/bootcamp/animatch`  
-> **Demo en vivo:** [https://vicentescript.github.io/Animatch](https://vicentescript.github.io/Animatch)  
+> **Repositorio original:** `/home/Vicente/bootcamp/animatch`
+> **Demo en vivo:** [https://vicentescript.github.io/Animatch](https://vicentescript.github.io/Animatch)
 > **Autor:** vicentescript
 
 ---

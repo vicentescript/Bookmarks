@@ -96,12 +96,69 @@ function logPagesModal(book) {
   input.focus();
 }
 
+function renderUpcomingList(books) {
+  const container = document.getElementById('upcomingReading');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const upcoming = books
+    .filter(b => b.estado === 'pendiente')
+    .sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0))
+    .slice(0, 5);
+
+  const title = document.createElement('h3');
+  title.className = 'hero-upcoming-title';
+  title.textContent = 'Elige tu próxima lectura';
+  container.appendChild(title);
+
+  if (upcoming.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'hero-upcoming-empty';
+    empty.textContent = 'Sin próximas lecturas';
+    container.appendChild(empty);
+    return;
+  }
+
+  upcoming.forEach(book => {
+    const item = document.createElement('div');
+    item.className = 'hero-upcoming-item';
+    item.addEventListener('click', () => {
+      import('./renderDetail.js').then(mod => mod.openDetail(book, item));
+    });
+
+    const img = document.createElement('img');
+    img.src = book.imagen;
+    img.alt = book.titulo;
+    img.loading = 'lazy';
+
+    const info = document.createElement('div');
+    info.className = 'hero-upcoming-info';
+
+    const t = document.createElement('span');
+    t.className = 'upcoming-title';
+    t.textContent = book.titulo;
+
+    const a = document.createElement('span');
+    a.className = 'upcoming-author';
+    a.textContent = book.autor;
+
+    info.appendChild(t);
+    info.appendChild(a);
+    item.appendChild(img);
+    item.appendChild(info);
+    container.appendChild(item);
+  });
+}
+
 let readingIndex = 0;
 
 export function renderCurrentlyReading() {
   const container = document.getElementById('currentlyReading');
   if (!container) return;
   container.innerHTML = '';
+
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
 
   const user = getCurrentUser();
   if (!user) return;
@@ -110,9 +167,13 @@ export function renderCurrentlyReading() {
   const readingList = books.filter(b => b.estado === 'leyendo');
 
   if (readingList.length === 0) {
-    container.innerHTML = '<p class="no-reading">No estás leyendo nada ahora mismo.</p>';
+    hero.classList.remove('reading-active');
+    container.innerHTML = '';
+    renderUpcomingList(books);
     return;
   }
+
+  hero.classList.add('reading-active');
 
   if (readingIndex >= readingList.length) readingIndex = 0;
   const reading = readingList[readingIndex];
@@ -124,6 +185,9 @@ export function renderCurrentlyReading() {
 
   const card = document.createElement('div');
   card.className = 'reading-card';
+
+  const top = document.createElement('div');
+  top.className = 'reading-card-top';
 
   const img = document.createElement('img');
   img.src = reading.imagen;
@@ -144,6 +208,16 @@ export function renderCurrentlyReading() {
   autor.className = 'reading-author';
   autor.textContent = reading.autor;
 
+  const barWrapper = document.createElement('div');
+  barWrapper.className = 'progress-bar-container';
+
+  const barRow = document.createElement('div');
+  barRow.className = 'progress-bar-row';
+
+  const pctText = document.createElement('span');
+  pctText.className = 'progress-pct';
+  pctText.textContent = progress + '%';
+
   const barContainer = document.createElement('div');
   barContainer.className = 'progress-bar';
 
@@ -151,15 +225,17 @@ export function renderCurrentlyReading() {
   bar.className = 'progress-fill';
   bar.style.width = progress + '%';
 
-  const barLabel = document.createElement('span');
-  barLabel.className = 'progress-label';
-  barLabel.textContent = `${leidas} / ${total} pág. (${progress}%)`;
-
   barContainer.appendChild(bar);
-  barContainer.appendChild(barLabel);
+  barRow.appendChild(barContainer);
+  barRow.appendChild(pctText);
+  barWrapper.appendChild(barRow);
 
   const daysContainer = document.createElement('div');
   daysContainer.className = 'reading-days';
+
+  const pagesText = document.createElement('span');
+  pagesText.className = 'progress-pages';
+  pagesText.textContent = `${leidas} / ${total} páginas`;
 
   if (stats && stats.startDate) {
     const start = new Date(stats.startDate);
@@ -175,6 +251,8 @@ export function renderCurrentlyReading() {
     daysContainer.appendChild(startP);
     daysContainer.appendChild(daysP);
   }
+
+  daysContainer.appendChild(pagesText);
 
   const btnContainer = document.createElement('div');
   btnContainer.className = 'reading-btns';
@@ -202,9 +280,11 @@ export function renderCurrentlyReading() {
   info.appendChild(btnContainer);
   info.appendChild(daysContainer);
 
-  card.appendChild(img);
-  card.appendChild(info);
-  card.appendChild(barContainer);
+  top.appendChild(img);
+  top.appendChild(info);
+
+  card.appendChild(top);
+  card.appendChild(barWrapper);
 
   if (readingList.length > 1) {
     const nav = document.createElement('div');
@@ -239,4 +319,6 @@ export function renderCurrentlyReading() {
   }
 
   container.appendChild(card);
+
+  renderUpcomingList(books);
 }
