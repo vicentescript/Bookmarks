@@ -105,8 +105,9 @@ function renderCard(libro) {
   infoLibro.appendChild(titulo);
   infoLibro.appendChild(autor);
 
-  const estrellas = renderEstrellas(libro);
-  if (estrellas) infoLibro.appendChild(estrellas);
+  const estrellas = renderEstrellas(libro) || document.createElement('div');
+  estrellas.className = 'estrellas';
+  infoLibro.appendChild(estrellas);
 
   imgContainer.appendChild(infoLibro);
 
