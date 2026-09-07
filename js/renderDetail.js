@@ -104,6 +104,7 @@ export function openDetail(libro, sourceEl) {
   modal.appendChild(closeBtn);
 
   let currentView = 'main';
+  let activeTab = 'info';
 
   function renderContent() {
     modal.querySelector('.detail-body')?.remove();
@@ -141,6 +142,101 @@ export function openDetail(libro, sourceEl) {
     autor.className = 'detail-author';
     autor.textContent = libro.autor;
     infoCol.appendChild(autor);
+
+    const tabsHeader = document.createElement('div');
+    tabsHeader.className = 'detail-tabs-header';
+
+    const tabs = [
+      { id: 'info', label: 'Info' },
+      { id: 'sinopsis', label: 'Sinopsis' },
+    ];
+
+    const stats = getReadingStats(libro.id);
+    const hasStats = stats && stats.sessions.length > 0;
+    if (libro.estado === 'leyendo' || (libro.estado === 'leido' && hasStats)) {
+      tabs.push({ id: 'progreso', label: libro.estado === 'leyendo' ? 'Progreso' : 'Lectura' });
+    }
+
+    tabs.forEach(tab => {
+      const btn = document.createElement('button');
+      btn.className = 'detail-tab-btn' + (activeTab === tab.id ? ' detail-tab-btn--active' : '');
+      btn.textContent = tab.label;
+      btn.addEventListener('click', () => {
+        activeTab = tab.id;
+        renderContent();
+      });
+      tabsHeader.appendChild(btn);
+    });
+
+    infoCol.appendChild(tabsHeader);
+
+    const tabContent = document.createElement('div');
+    tabContent.className = 'detail-tab-content';
+
+    if (activeTab === 'info') {
+      renderInfoTab(tabContent, stats);
+    } else if (activeTab === 'sinopsis') {
+      renderSinopsisTab(tabContent);
+    } else if (activeTab === 'progreso') {
+      renderProgresoTab(tabContent, stats);
+    }
+
+    infoCol.appendChild(tabContent);
+
+    const startBtnContainer = document.createElement('div');
+    startBtnContainer.className = 'detail-start-dropdown';
+
+    const startBtn = document.createElement('button');
+    startBtn.className = 'detail-start-btn';
+    startBtn.textContent = `${ESTADOS_LABEL[libro.estado]} ▾`;
+    startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startBtnContainer.classList.toggle('open');
+    });
+
+    const menu = document.createElement('div');
+    menu.className = 'estado-quick-menu';
+    ESTADOS.forEach(est => {
+      const item = document.createElement('button');
+      item.className = 'estado-quick-item';
+      item.textContent = ESTADOS_LABEL[est];
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        updateBookStatus(libro.id, est);
+        libro.estado = est;
+        renderBiblioteca();
+        renderCurrentlyReading();
+        renderContent();
+      });
+      menu.appendChild(item);
+    });
+
+    startBtnContainer.appendChild(startBtn);
+    startBtnContainer.appendChild(menu);
+
+    document.addEventListener('click', () => {
+      startBtnContainer.classList.remove('open');
+    });
+
+    infoCol.appendChild(startBtnContainer);
+
+    body.appendChild(infoCol);
+    modal.appendChild(body);
+  }
+
+  function renderInfoTab(container) {
+    const metas = document.createElement('div');
+    metas.className = 'detail-metas';
+
+    const pag = document.createElement('span');
+    pag.textContent = (libro.paginas || '?') + ' pág.';
+    metas.appendChild(pag);
+
+    const gen = document.createElement('span');
+    gen.textContent = libro.genero || 'General';
+    metas.appendChild(gen);
+
+    container.appendChild(metas);
 
     if (libro.estado === 'leido' || (libro.rating && libro.rating > 0)) {
       const ratingSection = document.createElement('div');
@@ -186,126 +282,77 @@ export function openDetail(libro, sourceEl) {
         ratingSection.appendChild(clearBtn);
       }
 
-      infoCol.appendChild(ratingSection);
+      container.appendChild(ratingSection);
     }
+  }
 
-    const metas = document.createElement('div');
-    metas.className = 'detail-metas';
-
-    const pag = document.createElement('span');
-    pag.textContent = (libro.paginas || '?') + ' pág.';
-    metas.appendChild(pag);
-
-    const gen = document.createElement('span');
-    gen.textContent = libro.genero || 'General';
-    metas.appendChild(gen);
-
-    infoCol.appendChild(metas);
-
-    const stats = getReadingStats(libro.id);
-    if (stats && stats.sessions.length > 0) {
-      const statsDiv = document.createElement('div');
-      statsDiv.className = 'detail-stats';
-
-      const total = document.createElement('p');
-      total.textContent = `Total leído: ${stats.totalPages} pág.`;
-      statsDiv.appendChild(total);
-
-      const days = document.createElement('p');
-      days.textContent = `Sesiones: ${stats.sessions.length} día${stats.sessions.length !== 1 ? 's' : ''}`;
-      statsDiv.appendChild(days);
-
-      if (stats.startDate) {
-        const startP = document.createElement('p');
-        startP.textContent = `Inicio: ${stats.startDate}`;
-        statsDiv.appendChild(startP);
-      }
-
-      if (libro.estado === 'leyendo' && stats.totalPages > 0 && libro.paginas) {
-        const progress = Math.min(100, Math.round((stats.totalPages / libro.paginas) * 100));
-        const barContainer = document.createElement('div');
-        barContainer.className = 'detail-progress';
-
-        const bar = document.createElement('div');
-        bar.className = 'detail-progress-fill';
-        bar.style.width = progress + '%';
-
-        const label = document.createElement('span');
-        label.className = 'detail-progress-label';
-        label.textContent = `${progress}%`;
-
-        barContainer.appendChild(bar);
-        barContainer.appendChild(label);
-        statsDiv.appendChild(barContainer);
-      }
-
-      infoCol.appendChild(statsDiv);
-    }
-
-    const startBtnContainer = document.createElement('div');
-    startBtnContainer.className = 'detail-start-dropdown';
-
-    const startBtn = document.createElement('button');
-    startBtn.className = 'detail-start-btn';
-    if (libro.estado === 'leyendo') {
-      startBtn.textContent = 'Leyendo ▾';
-      startBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        startBtnContainer.classList.toggle('open');
-      });
-
-      const menu = document.createElement('div');
-      menu.className = 'estado-quick-menu';
-      const otrosEstados = ESTADOS.filter(est => est !== 'leyendo');
-      otrosEstados.forEach(est => {
-        const item = document.createElement('button');
-        item.className = 'estado-quick-item';
-        item.textContent = ESTADOS_LABEL[est];
-        item.addEventListener('click', (e) => {
-          e.stopPropagation();
-          updateBookStatus(libro.id, est);
-          libro.estado = est;
-          renderBiblioteca();
-          renderCurrentlyReading();
-          renderContent();
-        });
-        menu.appendChild(item);
-      });
-
-      startBtnContainer.appendChild(startBtn);
-      startBtnContainer.appendChild(menu);
-
-      document.addEventListener('click', () => {
-        startBtnContainer.classList.remove('open');
-      });
+  function renderSinopsisTab(container) {
+    if (libro.sinopsis && libro.sinopsis !== 'Sin descripción disponible') {
+      const desc = document.createElement('p');
+      desc.className = 'detail-desc detail-editable';
+      desc.dataset.field = 'sinopsis';
+      desc.textContent = libro.sinopsis;
+      container.appendChild(desc);
     } else {
-      startBtn.textContent = 'Empezar a leer';
-      startBtn.addEventListener('click', () => {
-        updateBookStatus(libro.id, 'leyendo');
-        libro.estado = 'leyendo';
-        renderBiblioteca();
-        renderCurrentlyReading();
-        renderContent();
-      });
-      startBtnContainer.appendChild(startBtn);
+      const empty = document.createElement('p');
+      empty.className = 'detail-desc';
+      empty.textContent = 'Sin sinopsis disponible';
+      empty.style.opacity = '0.4';
+      container.appendChild(empty);
+    }
+  }
+
+  function renderProgresoTab(container, stats) {
+    if (!stats || stats.sessions.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'detail-desc';
+      empty.textContent = 'Sin datos de lectura';
+      empty.style.opacity = '0.4';
+      container.appendChild(empty);
+      return;
     }
 
-    const actionsRow = document.createElement('div');
-    actionsRow.className = 'detail-actions-row';
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'detail-stats';
 
-    const detailsBtn = document.createElement('button');
-    detailsBtn.className = 'detail-details-btn';
-    detailsBtn.textContent = '+ Info';
-    detailsBtn.addEventListener('click', () => {
-      currentView = 'details';
-      renderContent();
-    });
-    actionsRow.appendChild(startBtnContainer);
-    actionsRow.appendChild(detailsBtn);
-    infoCol.appendChild(actionsRow);
+    const total = document.createElement('p');
+    total.textContent = `Total leído: ${stats.totalPages} pág.`;
+    statsDiv.appendChild(total);
 
-    body.appendChild(infoCol);
-    modal.appendChild(body);
+    const days = document.createElement('p');
+    days.textContent = `Sesiones: ${stats.sessions.length} día${stats.sessions.length !== 1 ? 's' : ''}`;
+    statsDiv.appendChild(days);
+
+    if (stats.startDate) {
+      const startP = document.createElement('p');
+      startP.textContent = `Inicio: ${stats.startDate}`;
+      statsDiv.appendChild(startP);
+    }
+
+    if (libro.estado === 'leyendo' && stats.totalPages > 0 && libro.paginas) {
+      const progress = Math.min(100, Math.round((stats.totalPages / libro.paginas) * 100));
+      const barContainer = document.createElement('div');
+      barContainer.className = 'detail-progress';
+
+      const bar = document.createElement('div');
+      bar.className = 'detail-progress-fill';
+      bar.style.width = '0%';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          bar.style.width = progress + '%';
+        });
+      });
+
+      const label = document.createElement('span');
+      label.className = 'detail-progress-label';
+      label.textContent = `${progress}%`;
+
+      barContainer.appendChild(bar);
+      barContainer.appendChild(label);
+      statsDiv.appendChild(barContainer);
+    }
+
+    container.appendChild(statsDiv);
   }
 
   function renderDetailsView() {

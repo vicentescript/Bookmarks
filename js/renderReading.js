@@ -1,39 +1,21 @@
 import { getCurrentUser, getUserBooks, getReadingStats, addReadingSession, updateBookStatus, startReading, finishReading } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
 
-function logPagesModal(book) {
-  const overlay = document.createElement('div');
-  overlay.className = 'login-overlay';
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
-  document.body.appendChild(overlay);
+function renderInlinePageForm(book, formContainer, card) {
+  formContainer.innerHTML = '';
+  formContainer.classList.add('inline-page-form', 'inline-page-form--open');
 
-  const modal = document.createElement('div');
-  modal.className = 'login-modal';
-  overlay.appendChild(modal);
-
-  const title = document.createElement('h2');
-  title.className = 'login-title';
+  const title = document.createElement('p');
+  title.className = 'inline-page-title';
   title.textContent = 'Registrar lectura';
-  modal.appendChild(title);
-
-  const bookInfo = document.createElement('p');
-  bookInfo.className = 'log-book-info';
-  bookInfo.textContent = `${book.titulo} — ${book.autor}`;
-  modal.appendChild(bookInfo);
+  formContainer.appendChild(title);
 
   const stats = getReadingStats(book.id);
   const prevTotal = stats ? stats.totalPages : 0;
 
-  const currentLabel = document.createElement('p');
-  currentLabel.className = 'settings-label';
-  currentLabel.textContent = 'Página actual:';
-  modal.appendChild(currentLabel);
-
   const inputGroup = document.createElement('div');
   inputGroup.className = 'number-input-group';
-  modal.appendChild(inputGroup);
+  formContainer.appendChild(inputGroup);
 
   const minusBtn = document.createElement('button');
   minusBtn.className = 'number-spin-btn';
@@ -65,33 +47,49 @@ function logPagesModal(book) {
   });
 
   const today = new Date().toISOString().split('T')[0];
-  const dateLabel = document.createElement('p');
-  dateLabel.className = 'settings-label';
-  dateLabel.textContent = `Fecha: ${today}`;
-  modal.appendChild(dateLabel);
+  const dateLabel = document.createElement('span');
+  dateLabel.className = 'inline-page-date';
+  dateLabel.textContent = today;
+  formContainer.appendChild(dateLabel);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'inline-page-btns';
 
   const saveBtn = document.createElement('button');
-  saveBtn.className = 'login-create-btn';
+  saveBtn.className = 'reading-btn secondary';
   saveBtn.textContent = 'Guardar';
-  modal.appendChild(saveBtn);
+  btnRow.appendChild(saveBtn);
 
   const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'login-cancel-btn';
+  cancelBtn.className = 'reading-btn danger';
   cancelBtn.textContent = 'Cancelar';
-  modal.appendChild(cancelBtn);
+  btnRow.appendChild(cancelBtn);
+
+  formContainer.appendChild(btnRow);
 
   saveBtn.addEventListener('click', () => {
     const currentPage = parseInt(input.value);
     if (!currentPage || currentPage <= 0) return;
     const pagesRead = currentPage - prevTotal;
-    if (pagesRead <= 0) return;
-    addReadingSession(book.id, today, pagesRead);
-    startReading(book.id);
-    overlay.remove();
-    renderCurrentlyReading();
+
+    const doSave = () => {
+      addReadingSession(book.id, today, pagesRead);
+      startReading(book.id);
+      formContainer.classList.remove('inline-page-form--open');
+      setTimeout(() => renderCurrentlyReading(), 300);
+    };
+
+    if (pagesRead <= 0) {
+      const confirmed = confirm('Estás colocando un número de páginas menor al registrado. ¿Deseas continuar?');
+      if (confirmed) doSave();
+    } else {
+      doSave();
+    }
   });
 
-  cancelBtn.addEventListener('click', () => overlay.remove());
+  cancelBtn.addEventListener('click', () => {
+    formContainer.classList.remove('inline-page-form--open');
+  });
 
   input.focus();
 }
@@ -223,7 +221,12 @@ export function renderCurrentlyReading() {
 
   const bar = document.createElement('div');
   bar.className = 'progress-fill';
-  bar.style.width = progress + '%';
+  bar.style.width = '0%';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      bar.style.width = progress + '%';
+    });
+  });
 
   barContainer.appendChild(bar);
   barRow.appendChild(barContainer);
@@ -260,7 +263,13 @@ export function renderCurrentlyReading() {
   const logBtn = document.createElement('button');
   logBtn.className = 'reading-btn';
   logBtn.textContent = '+ Registrar páginas';
-  logBtn.addEventListener('click', () => logPagesModal(reading));
+  logBtn.addEventListener('click', () => {
+    if (inlineForm.classList.contains('inline-page-form--open')) {
+      inlineForm.classList.remove('inline-page-form--open');
+    } else {
+      renderInlinePageForm(reading, inlineForm, card);
+    }
+  });
 
   const finishBtn = document.createElement('button');
   finishBtn.className = 'reading-btn secondary';
@@ -275,9 +284,13 @@ export function renderCurrentlyReading() {
   btnContainer.appendChild(logBtn);
   btnContainer.appendChild(finishBtn);
 
+  const inlineForm = document.createElement('div');
+  inlineForm.className = 'inline-page-form';
+
   info.appendChild(titulo);
   info.appendChild(autor);
   info.appendChild(btnContainer);
+  info.appendChild(inlineForm);
   info.appendChild(daysContainer);
 
   top.appendChild(img);
