@@ -128,7 +128,7 @@ function renderCard(libro) {
 
   article.addEventListener('click', (e) => {
     if (e.target.closest('.badge-estado-top') || e.target.closest('.synopsis-panel')) return;
-    import('./renderDetail.js').then(mod => mod.openDetail(libro, article));
+    import('./renderDetail.js').then(mod => mod.openDetail(libro, article.querySelector('img')));
   });
 
   return article;

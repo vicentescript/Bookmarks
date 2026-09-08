@@ -27,3 +27,5 @@ if (getCurrentUser()) {
     if (updated > 0) initBiblioteca();
   });
 }
+
+document.querySelector('.parent').classList.remove('loading');

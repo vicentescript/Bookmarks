@@ -1,5 +1,6 @@
-import { getCurrentUser, getUserBooks, getUserLists, createList, deleteList, updateList, addBookToList, removeBookFromList, getListBooks } from './store.js';
+import { getCurrentUser, getUserBooks, getUserLists, createList, deleteList, updateList, addBookToList, removeBookFromList, getListBooks, updateBookStatus } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
+import { renderCurrentlyReading } from './renderReading.js';
 
 let currentView = 'books';
 
@@ -418,16 +419,47 @@ function openListDetail(list) {
       info.appendChild(bookAuthor);
 
       const removeBtn = document.createElement('button');
-      removeBtn.className = 'list-action-btn danger';
-      removeBtn.textContent = 'Quitar';
-      removeBtn.addEventListener('click', () => {
-        removeBookFromList(list.id, book.id);
-        overlay.remove();
-        openListDetail(list);
+      removeBtn.className = 'detail-close';
+      removeBtn.innerHTML = '✕';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const confirm = document.createElement('div');
+        confirm.className = 'list-confirm-overlay';
+        confirm.innerHTML = `
+          <div class="list-confirm-box">
+            <p>¿Eliminar este libro de la lista?</p>
+            <div class="list-confirm-btns">
+              <button class="list-confirm-yes">Eliminar</button>
+              <button class="list-confirm-no">Cancelar</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(confirm);
+        confirm.querySelector('.list-confirm-yes').addEventListener('click', () => {
+          removeBookFromList(list.id, book.id);
+          overlay.remove();
+          openListDetail(list);
+        });
+        confirm.querySelector('.list-confirm-no').addEventListener('click', () => {
+          confirm.remove();
+        });
       });
 
       row.appendChild(img);
       row.appendChild(info);
+
+      const startBtn = document.createElement('button');
+      startBtn.className = 'list-start-btn';
+      startBtn.textContent = 'Leer';
+      startBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        updateBookStatus(book.id, 'leyendo');
+        renderCurrentlyReading();
+        overlay.remove();
+        openListDetail(list);
+      });
+      row.appendChild(startBtn);
+
       row.appendChild(removeBtn);
       bookList.appendChild(row);
     });

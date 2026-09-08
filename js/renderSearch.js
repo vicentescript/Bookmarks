@@ -122,6 +122,8 @@ export function search() {
       floatingBar.style.height = headerRect.height + 'px';
 
       overlay.style.opacity = '0';
+      overlay.style.backdropFilter = 'blur(0px)';
+      overlay.style.webkitBackdropFilter = 'blur(0px)';
 
       setTimeout(() => {
         floatingBar.remove();
@@ -141,7 +143,7 @@ export function search() {
     headerRect = headerSearch.getBoundingClientRect();
 
     overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;transition:background 0.35s ease;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0);backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);z-index:100;transition:background 0.35s ease, backdrop-filter 0.35s ease, -webkit-backdrop-filter 0.35s ease;';
     document.body.appendChild(overlay);
 
     document.body.style.overflow = 'hidden';
@@ -179,6 +181,8 @@ export function search() {
     overlay.style.transition = 'background 0.35s ease';
 
     overlay.style.background = 'rgba(0,0,0,0.85)';
+    overlay.style.backdropFilter = 'blur(8px)';
+    overlay.style.webkitBackdropFilter = 'blur(8px)';
     floatingBar.style.left = '50%';
     floatingBar.style.top = '18vh';
     floatingBar.style.width = '500px';

@@ -1,5 +1,10 @@
-import { getCurrentUser, getUserBooks, getReadingStats, addReadingSession, updateBookStatus, startReading, finishReading } from './store.js';
+import { getCurrentUser, getUserBooks, getReadingStats, addReadingSession, updateBookStatus, startReading, finishReading, removeUserBook } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
+
+function fmtDate(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
 
 function renderInlinePageForm(book, formContainer, card) {
   formContainer.innerHTML = '';
@@ -49,7 +54,7 @@ function renderInlinePageForm(book, formContainer, card) {
   const today = new Date().toISOString().split('T')[0];
   const dateLabel = document.createElement('span');
   dateLabel.className = 'inline-page-date';
-  dateLabel.textContent = today;
+  dateLabel.textContent = fmtDate(today);
   formContainer.appendChild(dateLabel);
 
   const btnRow = document.createElement('div');
@@ -90,8 +95,6 @@ function renderInlinePageForm(book, formContainer, card) {
   cancelBtn.addEventListener('click', () => {
     formContainer.classList.remove('inline-page-form--open');
   });
-
-  input.focus();
 }
 
 function renderUpcomingList(books) {
@@ -121,7 +124,7 @@ function renderUpcomingList(books) {
     const item = document.createElement('div');
     item.className = 'hero-upcoming-item';
     item.addEventListener('click', () => {
-      import('./renderDetail.js').then(mod => mod.openDetail(book, item));
+      import('./renderDetail.js').then(mod => mod.openDetail(book, item.querySelector('img')));
     });
 
     const img = document.createElement('img');
@@ -144,6 +147,31 @@ function renderUpcomingList(books) {
     info.appendChild(a);
     item.appendChild(img);
     item.appendChild(info);
+
+    const btns = document.createElement('div');
+    btns.className = 'upcoming-btns';
+
+    const startBtn = document.createElement('button');
+    startBtn.className = 'upcoming-start-btn';
+    startBtn.textContent = 'Leer';
+    startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateBookStatus(book.id, 'leyendo');
+      renderCurrentlyReading();
+    });
+    btns.appendChild(startBtn);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'upcoming-remove-btn';
+    removeBtn.innerHTML = '✕';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeUserBook(book.id);
+      renderCurrentlyReading();
+    });
+    btns.appendChild(removeBtn);
+
+    item.appendChild(btns);
     container.appendChild(item);
   });
 }
@@ -167,11 +195,13 @@ export function renderCurrentlyReading() {
   if (readingList.length === 0) {
     hero.classList.remove('reading-active');
     container.innerHTML = '';
+    document.querySelector('.info-hero').style.opacity = '1';
     renderUpcomingList(books);
     return;
   }
 
   hero.classList.add('reading-active');
+  document.querySelector('.info-hero').style.opacity = '0';
 
   if (readingIndex >= readingList.length) readingIndex = 0;
   const reading = readingList[readingIndex];
@@ -246,7 +276,7 @@ export function renderCurrentlyReading() {
     const days = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
 
     const startP = document.createElement('span');
-    startP.textContent = `Desde ${stats.startDate}`;
+    startP.textContent = `Desde ${fmtDate(stats.startDate)}`;
 
     const daysP = document.createElement('span');
     daysP.textContent = `${days} día${days !== 1 ? 's' : ''}`;
