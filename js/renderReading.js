@@ -1,4 +1,4 @@
-import { getCurrentUser, getUserBooks, getReadingStats, addReadingSession, updateBookStatus, startReading, finishReading, removeUserBook } from './store.js';
+import { getCurrentUser, getUserBooks, getReadingStats, addReadingSession, updateBookStatus, startReading, finishReading, updateBookInfo } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
 
 function fmtDate(iso) {
@@ -97,22 +97,30 @@ function renderInlinePageForm(book, formContainer, card) {
   });
 }
 
+let upcomingPage = 0;
+const UPCOMING_PER_PAGE = 5;
+
 function renderUpcomingList(books) {
   const container = document.getElementById('upcomingReading');
   if (!container) return;
   container.innerHTML = '';
 
-  const upcoming = books
+  const allUpcoming = books
     .filter(b => b.estado === 'pendiente')
-    .sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0))
-    .slice(0, 5);
+    .sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0));
+
+  const totalPages = Math.ceil(allUpcoming.length / UPCOMING_PER_PAGE);
+  if (totalPages > 0 && upcomingPage >= totalPages) upcomingPage = totalPages - 1;
+  if (upcomingPage < 0) upcomingPage = 0;
+
+  const upcoming = allUpcoming.slice(upcomingPage * UPCOMING_PER_PAGE, (upcomingPage + 1) * UPCOMING_PER_PAGE);
 
   const title = document.createElement('h3');
   title.className = 'hero-upcoming-title';
   title.textContent = 'Elige tu próxima lectura';
   container.appendChild(title);
 
-  if (upcoming.length === 0) {
+  if (allUpcoming.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'hero-upcoming-empty';
     empty.textContent = 'Sin próximas lecturas';
@@ -166,7 +174,7 @@ function renderUpcomingList(books) {
     removeBtn.innerHTML = '✕';
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      removeUserBook(book.id);
+      updateBookInfo(book.id, { addedAt: Date.now() });
       renderCurrentlyReading();
     });
     btns.appendChild(removeBtn);
@@ -174,6 +182,46 @@ function renderUpcomingList(books) {
     item.appendChild(btns);
     container.appendChild(item);
   });
+
+  if (totalPages > 1) {
+    const nav = document.createElement('div');
+    nav.className = 'upcoming-nav';
+
+    function changePage(newPage) {
+      container.style.opacity = '0';
+      container.style.transition = 'opacity 0.2s ease';
+      setTimeout(() => {
+        upcomingPage = newPage;
+        renderUpcomingList(books);
+        container.style.opacity = '1';
+      }, 200);
+    }
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'upcoming-arrow';
+    prevBtn.innerHTML = '◂';
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      changePage(upcomingPage === 0 ? totalPages - 1 : upcomingPage - 1);
+    });
+
+    const counter = document.createElement('span');
+    counter.className = 'upcoming-counter';
+    counter.textContent = `${upcomingPage + 1}/${totalPages}`;
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'upcoming-arrow';
+    nextBtn.innerHTML = '▸';
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      changePage(upcomingPage === totalPages - 1 ? 0 : upcomingPage + 1);
+    });
+
+    nav.appendChild(prevBtn);
+    nav.appendChild(counter);
+    nav.appendChild(nextBtn);
+    container.appendChild(nav);
+  }
 }
 
 let readingIndex = 0;

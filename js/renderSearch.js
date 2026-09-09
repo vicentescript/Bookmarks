@@ -1,6 +1,7 @@
 import { searchBooks } from './api.js';
 import { getCurrentUser, addUserBook } from './store.js';
 import { renderBiblioteca } from './renderHome.js';
+import { renderCurrentlyReading } from './renderReading.js';
 
 function upgradeImageUrl(url) {
   if (!url) return url;
@@ -52,6 +53,7 @@ function createBookCard(libro, user) {
       addBtn.textContent = '✓ Añadido';
       addBtn.disabled = true;
       renderBiblioteca();
+      renderCurrentlyReading();
     } else {
       addBtn.textContent = 'Ya está';
       addBtn.disabled = true;
