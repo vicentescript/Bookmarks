@@ -18,6 +18,7 @@ function transformBook(item) {
     bookId: item.id,
     titulo: info.title || 'Sin título',
     autor: (info.authors || ['Desconocido']).join(', '),
+    editorial: info.publisher || null,
     imagen: upgradeImageUrl(rawImg) || 'assets/images/default.jpg',
     sinopsis: info.description || 'Sin descripción disponible',
     paginas: info.pageCount || null,
@@ -36,13 +37,19 @@ function createBookCard(libro, user) {
   img.src = libro.imagen;
   img.alt = libro.titulo;
   img.loading = 'lazy';
-  img.onerror = () => { img.style.display = 'none'; };
+  img.onerror = () => { img.src = 'assets/images/default.jpg'; };
 
   const title = document.createElement('strong');
   title.textContent = libro.titulo;
   const author = document.createElement('span');
   author.className = 'card-meta';
   author.textContent = libro.autor;
+
+  const publisher = document.createElement('span');
+  publisher.className = 'card-meta';
+  publisher.style.fontSize = '0.7rem';
+  publisher.style.opacity = '0.6';
+  publisher.textContent = libro.editorial || '';
 
   const addBtn = document.createElement('button');
   addBtn.className = 'add-btn';
@@ -63,6 +70,7 @@ function createBookCard(libro, user) {
   card.appendChild(img);
   card.appendChild(title);
   card.appendChild(author);
+  if (libro.editorial) card.appendChild(publisher);
   card.appendChild(addBtn);
   return card;
 }
@@ -251,26 +259,22 @@ export function search() {
 
     setTimeout(() => { resultsGrid.style.opacity = '1'; addManualBtn.style.opacity = '1'; }, 50);
 
+    let abortController = null;
+
     cloneInput.addEventListener('keydown', async (e) => {
       if (e.key === 'Enter' && cloneInput.value.trim()) {
+        if (abortController) abortController.abort();
+        abortController = new AbortController();
+
         cloneInput.disabled = true;
         resultsGrid.innerHTML = '<p class="search-loading" style="grid-column:1/-1;text-align:center;color:#555;font-family:Roboto Mono,monospace;font-size:0.9rem;padding:30px 0">Buscando...</p>';
 
-        let intentos = 0;
-
-        const intentar = async (startTime) => {
-          intentos++;
-          const data = await searchBooks(cloneInput.value);
-          if (data) return data;
-          const elapsed = Date.now() - startTime;
-          if (elapsed < 10000) {
-            await new Promise(r => setTimeout(r, Math.min(1000 * intentos, 6000)));
-            return intentar(startTime);
-          }
-          return null;
-        };
-
-        const data = await intentar(Date.now());
+        let data = null;
+        try {
+          data = await searchBooks(cloneInput.value, abortController.signal);
+        } catch (err) {
+          if (err.name !== 'AbortError') data = null;
+        }
         resultsGrid.innerHTML = '';
 
         if (!data) {
@@ -281,7 +285,9 @@ export function search() {
         }
 
         const items = data.items || [];
-        const libros = items.map(transformBook);
+        const libros = items
+          .map(transformBook)
+          .filter(libro => libro.imagen && !libro.imagen.includes('default.jpg'));
 
         const user = getCurrentUser();
         if (!user) { cloneInput.disabled = false; return; }

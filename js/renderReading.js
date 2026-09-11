@@ -128,6 +128,10 @@ function renderUpcomingList(books) {
     return;
   }
 
+  const itemsList = document.createElement('div');
+  itemsList.className = 'upcoming-items';
+  container.appendChild(itemsList);
+
   upcoming.forEach(book => {
     const item = document.createElement('div');
     item.className = 'hero-upcoming-item';
@@ -180,20 +184,38 @@ function renderUpcomingList(books) {
     btns.appendChild(removeBtn);
 
     item.appendChild(btns);
-    container.appendChild(item);
+    itemsList.appendChild(item);
   });
+
+  const remaining = UPCOMING_PER_PAGE - upcoming.length;
+  for (let i = 0; i < remaining; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'hero-upcoming-item upcoming-slot';
+    const img = document.createElement('img');
+    img.alt = '';
+    slot.appendChild(img);
+    const info = document.createElement('div');
+    info.className = 'hero-upcoming-info';
+    slot.appendChild(info);
+    itemsList.appendChild(slot);
+  }
 
   if (totalPages > 1) {
     const nav = document.createElement('div');
     nav.className = 'upcoming-nav';
 
     function changePage(newPage) {
-      container.style.opacity = '0';
-      container.style.transition = 'opacity 0.2s ease';
+      itemsList.style.opacity = '0';
       setTimeout(() => {
         upcomingPage = newPage;
         renderUpcomingList(books);
-        container.style.opacity = '1';
+        const nextList = container.querySelector('.upcoming-items');
+        nextList.style.opacity = '0';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            nextList.style.opacity = '1';
+          });
+        });
       }, 200);
     }
 
@@ -284,15 +306,15 @@ export function renderCurrentlyReading() {
   autor.className = 'reading-author';
   autor.textContent = reading.autor;
 
+  const pctText = document.createElement('span');
+  pctText.className = 'progress-pct';
+  pctText.textContent = progress + '%';
+
   const barWrapper = document.createElement('div');
   barWrapper.className = 'progress-bar-container';
 
   const barRow = document.createElement('div');
   barRow.className = 'progress-bar-row';
-
-  const pctText = document.createElement('span');
-  pctText.className = 'progress-pct';
-  pctText.textContent = progress + '%';
 
   const barContainer = document.createElement('div');
   barContainer.className = 'progress-bar';
@@ -308,7 +330,6 @@ export function renderCurrentlyReading() {
 
   barContainer.appendChild(bar);
   barRow.appendChild(barContainer);
-  barRow.appendChild(pctText);
   barWrapper.appendChild(barRow);
 
   const daysContainer = document.createElement('div');
@@ -370,12 +391,17 @@ export function renderCurrentlyReading() {
   info.appendChild(btnContainer);
   info.appendChild(inlineForm);
   info.appendChild(daysContainer);
+  info.appendChild(pctText);
 
-  top.appendChild(img);
+  const cover = document.createElement('div');
+  cover.className = 'reading-cover';
+  cover.appendChild(img);
+  cover.appendChild(barWrapper);
+
+  top.appendChild(cover);
   top.appendChild(info);
 
   card.appendChild(top);
-  card.appendChild(barWrapper);
 
   if (readingList.length > 1) {
     const nav = document.createElement('div');

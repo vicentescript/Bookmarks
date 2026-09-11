@@ -4,7 +4,7 @@ import { initBiblioteca } from './renderHome.js';
 import { renderCurrentlyReading } from './renderReading.js';
 import { initAddManual } from './renderAddManual.js';
 import { initLists } from './renderLists.js';
-import { getCurrentUser, updateAllGenres } from './store.js';
+import { getCurrentUser } from './store.js';
 
 login();
 
@@ -23,9 +23,6 @@ if (getCurrentUser()) {
   renderCurrentlyReading();
   initAddManual();
   initLists();
-  updateAllGenres(user.id).then(updated => {
-    if (updated > 0) initBiblioteca();
-  });
 }
 
 document.querySelector('.parent').classList.remove('loading');
